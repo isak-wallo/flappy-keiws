@@ -1,0 +1,96 @@
+# Flappy keIWs — flaxa mellan staplarna
+
+En Flappy Bird-variant (PWA) i pixelstil, med figuren keIWs. Här finns
+poäng, krasch och rekord. Språk i appen och i koden (kommentarer, namn,
+commit-meddelanden) är **svenska**. Håll det så.
+
+Lokala, privata anteckningar (om de finns) ligger i `CLAUDE.local.md`, som
+inte checkas in.
+
+## Git: jobba alltid direkt mot `main`
+
+- Gör alla ändringar direkt på `main`. **Skapa aldrig nya grenar** och inga
+  pull requests om det inte uttryckligen efterfrågas.
+- När en ändring är klar: bumpa `VERSION` i `sw.js`, commit och
+  `git push origin main` direkt — det är så den når GitHub Pages.
+- Repot är publikt: länka inte till privata repon i README, kommentarer
+  eller commit-meddelanden.
+
+## Hosting
+
+- GitHub Pages från `main` (rot): https://isak-wallo.github.io/flappy-keiws/
+- **Inget byggsteg, inga dependencies** — ren vanilla JS/CSS/HTML.
+- **Bumpa `VERSION` i `sw.js` vid varje ändring**, annars fastnar installerade
+  appar på gammal cache. Nya filer måste också läggas i `ASSETS` i `sw.js`.
+
+## Vad spelet gör
+
+- **Stående**, en bana (`angen`), en figur (`keiws`), inga ljud, inga
+  inställningar.
+- Tryck/klick/mellanslag/pil upp/W/Enter = flaxa. Lägen: `start` (figuren
+  gungar, ruta "Tryck för att flyga") → `spelar` → `krasch` (figuren faller
+  till marken, blundar; efter `VISA_KRASCH_EFTER` visas poäng/bäst) → tryck
+  (efter `OMSTART_SPARR`) → `start`.
+- Poäng i egna 3×5-pixelsiffror på canvasen; bästa resultatet i
+  `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM.
+- Lugna, lite dova pixelfärger (himmel i band, moln, två lager kullar,
+  raka staplar i olika gröna nyanser, sandmark).
+
+## Filer
+
+| Fil | Roll |
+|-----|------|
+| `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figurer.js`, `banor.js`, `app.js` i den ordningen. |
+| `figurer.js` | `FIGURER`: figurer som klossar i figurens animationsmått (512×304 px per bild), med roller `kropp`/`arm`/`oga`/`ben`, `skala`, `blink` (blinkstreckets höjd), `mitt` och träffyta `traff`. keIWs = sidovyn, speglad åt höger. |
+| `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler) och färger. |
+| `app.js` | Spelet: loop, fysik, kollisioner, ritning, poäng, layout, styrning, helskärm, SW-registrering. Väljer figur och bana högst upp (`figur`, `bana`). |
+| `style.css` | Fullskärm, textrutan i pixelstil. |
+| `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
+| `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
+| `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
+
+## Stilregler för figurerna
+
+Bara fyrkantiga klossar som flyttas — ingen rotation, inget som sträcks ut.
+keIWs: alla klossar 36 px, kroppen 160×160, 8 px mellanrum överallt
+(kropp–arm, kropp–ben, mellan ögonen från sidan). Lägen i jämna px, helst
+steg om 12. Bortre arm och ben ritas mörkare bakom kroppen, magklossen sitter
+rakt under främre ögat, armarna hamnar aldrig över kroppen.
+
+## Arkitektur i `app.js`
+
+- **Världen** är 360×640 enheter. Vyn skalas så att hela världen syns
+  (`s` = skärmpixlar per enhet); är skärmen högre syns mer himmel (70 %) och
+  mark (30 %), är den bredare syns mer åt sidorna — men spelytan är högst
+  `MAX_B` (400) enheter bred, så på dator/platta blir den en stående remsa
+  i mitten. `vyX0/vyY0/vyB/vyH` = vad som syns, i världskoordinater.
+- **Pixelstil:** allt ritas med `rekt()`, som avrundar till hela
+  skärmpixlar (canvasen är i enhetens pixlar, `devicePixelRatio`). Inga
+  bilder, ingen rotation (då blir kanterna suddiga).
+- **Fast tidssteg** (`STEG` = 1/120 s, ackumulator i `frame`), max 0,1 s per
+  bildruta — spelet känns likadant på 60 och 120 Hz.
+- **Figuren** står still i x (`FIGUR_X`), banan rullar. Armarna flyttas i
+  hela steg om 12 figurpixlar vid flax (`armLyft`). Svävande ben sackar
+  8/4 px nedåt efter ett flax (`benSack`). Ögonen blinkar och blundar vid
+  krasch (`blundar`).
+- **Staplar** (raka, enfärgade — inga rör med kapsyl) fylls på till höger
+  (`fyllPaStaplar`); öppningen slumpas men flyttar sig högst `maxHopp`
+  mellan två staplar. **Lätt i början:** öppningen är `oppningStart` (200)
+  vid första stapeln och krymper med `oppningSteg` (5) per stapel ner till
+  `oppning` (150) (`oppningFor`, varje stapel minns sin `oppning`). Varje
+  stapel får en slumpad grön nyans ur `farger.staplar` (`stapelFarg`, aldrig
+  samma två i rad). Kollision = rektanglar (`stapelDelar`, `figurTraff`).
+  Taket är skärmens överkant.
+- **Ny SW-version** laddas in direkt i startläget, annars först när man
+  kommer tillbaka till start (`laddaOmSen`) — aldrig mitt i en runda.
+- **Testkrok:** med `?test` i adressen finns `window.spelet` (tillstånd,
+  poäng, figur, staplar, bana) så att ett testskript (t.ex. Playwright) kan
+  läsa läget och spela.
+
+## Bygga ut (förberett)
+
+- **Ny figur**: nytt objekt i `FIGURER`, byt `figur` i `app.js`. Senare:
+  figurval i startrutan.
+- **Ny bana**: kopiera `angen` i `BANOR`, ändra värden/färger. Senare:
+  banval, svårighet som ökar under banan, nya hindertyper.
+- Ljud är medvetet bortvalt tills vidare.

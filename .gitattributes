@@ -1,0 +1,5 @@
+# Normalisera radslut till LF i repot oavsett plattform.
+* text=auto eol=lf
+
+# Binära filer berörs ej av radslutsnormalisering.
+*.png binary

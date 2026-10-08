@@ -1,0 +1,71 @@
+* {
+    box-sizing: border-box;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-tap-highlight-color: transparent;
+    background-color: #2f3f4c;   /* runt spelytan på dator/platta */
+}
+
+/* Storlek och läge sätts av JS (layout i app.js): full höjd, stående
+   remsa i mitten på breda skärmar. */
+#app {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+    touch-action: none;   /* ingen zoom eller scroll */
+    cursor: pointer;
+}
+
+#spel {
+    display: block;
+    image-rendering: pixelated;
+}
+
+/* Rutan med text (start och krasch), i pixelstil: raka hörn, hård skugga */
+#ruta {
+    position: absolute;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    min-width: 60%;
+    padding: 16px 20px;
+    background-color: rgba(250, 252, 248, 0.92);
+    border: 4px solid #5f8292;
+    box-shadow: 6px 6px 0 rgba(47, 63, 76, 0.35);
+    color: #2f3f4c;
+    font-family: ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+    font-weight: bold;
+    text-align: center;
+    pointer-events: none;
+}
+
+#ruta.dold {
+    display: none;
+}
+
+#ruta h1 {
+    margin: 4px 0 10px;
+    font-size: 30px;
+    letter-spacing: 1px;
+}
+
+#ruta p {
+    margin: 6px 0;
+    font-size: 18px;
+}
+
+#ruta p.liten {
+    font-size: 15px;
+    color: #5f8292;
+}
