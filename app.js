@@ -10,11 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Menyknappen: ett kugghjul (12 kuggar) i ett rutnät om 16×16 pixlar,
+    // Menyknappen: ett kugghjul (12 kuggar) i ett rutnät om 24×24 pixlar,
     // och texten "Meny". Kugghjulet räknas fram som en form (kuggar som
     // smalnar av utåt, runt hål) och ritas sedan i pixlar.
     menyknapp.innerHTML = (() => {
-        const N = 16, n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
+        const N = 24, n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
         function iKugghjulet(x, y) {               // x, y i 0..24
             const dx = x - 12, dy = y - 12, r = Math.hypot(dx, dy);
             if (r <= hal || r > yttre) return false;
