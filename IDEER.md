@@ -12,8 +12,11 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 Nya animationer görs i figurens eget ritverktyg, exporteras och läses in
 med `verktyg/las_figur.py`.
 
-- [ ] **Somnar** på startskärmen om ingen trycker på en stund (behöver en
-  somna-animation i exporten).
+- [ ] **Somnar** på startskärmen om ingen trycker på ca 20–30 s: somnar
+  (ögonen blir streck, kroppen sjunker ihop), sover i loop med Z-klossar.
+  Ett tryck: vaknar och **ruskar igång sig** (ca 0,5 s, tryck under tiden
+  räknas inte), vrider sig och flyger iväg. Animationerna `somnar`,
+  `sover`, `vaknar` beställda i figurens export (2026-10-09).
 - [ ] **Jubel ur exporten** (`FIGUR_DATA.keiws.jubel`, åt höger) vid nytt
   rekord, i stället för spelets egna armar.
 
