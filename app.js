@@ -48,6 +48,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let tillstand = 'start';
     let lageBorjade = 0;             // tid när start eller spelar började
     let vriderTillbaka = false;      // start efter en runda: vrid tillbaka framåt
+    let vaknarVid = null;            // tid när figuren väcktes (ruskar igång sig)
     let tid = 0;                     // s sedan sidan startade (för gungning m.m.)
     let rullat = 0;                  // hur långt banan rullat (för marken)
     let staplar = [];                // { x, mittY, passerad }
@@ -202,8 +203,38 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Startskärmens animationer efter varandra (figur.start), längd i ms.
-    const START_MS = figur.start ? figur.start.reduce((s, namn) =>
-        s + figur.animationer[namn].reduce((s2, r) => s2 + r.tid, 0), 0) : 0;
+    const animMs = namn => figur.animationer[namn].reduce((s, r) => s + r.tid, 0);
+    const START_MS = figur.start ? figur.start.reduce((s, namn) => s + animMs(namn), 0) : 0;
+    const KAN_SOVA = !!(figur.somnaEfter && figur.animationer &&
+        figur.animationer.somnar && figur.animationer.sover && figur.animationer.vaknar);
+    // ?somna=2 i adressen: somnar redan efter 2 s (för att prova och testa)
+    const SOMNA_EFTER = +((/[?&]somna=([\d.]+)/.exec(location.search) || [])[1] || figur.somnaEfter);
+
+    // När somnar figuren (ms in i startanimationerna)? Vid första ledigt
+    // läge (slutet på en animation) efter SOMNA_EFTER sekunder.
+    const SOMNAR_MS = (() => {
+        if (!KAN_SOVA) return Infinity;
+        let ms = 0;
+        while (ms < SOMNA_EFTER * 1000) {
+            for (const namn of figur.start) {
+                ms += animMs(namn);
+                if (ms >= SOMNA_EFTER * 1000) break;
+            }
+        }
+        return ms;
+    })();
+
+    // Rutan i en animation `ms` in i den (sista rutan om den är slut,
+    // eller om igen om loop).
+    function rutaI(namn, ms, loop) {
+        const rutor = figur.animationer[namn];
+        if (loop) ms %= animMs(namn);
+        for (const r of rutor) {
+            if (ms < r.tid) return r.rekt;
+            ms -= r.tid;
+        }
+        return rutor[rutor.length - 1].rekt;
+    }
 
     // Ska figuren ritas med en färdig ruta ur exporten just nu? Ger
     // { lage, rekt } eller null (då ritas sidovyn med klossar och roller).
@@ -219,12 +250,21 @@ document.addEventListener('DOMContentLoaded', () => {
             return i < 3 ? { lage: 'vrid', rekt: figur.vrid[i] } : null;
         }
         if (tillstand !== 'start') return null;
+        if (vaknarVid !== null) {
+            return { lage: 'vaknar', rekt: rutaI('vaknar', (tid - vaknarVid) * 1000, false) };
+        }
         if (vriderTillbaka) {
             const i = 2 - Math.floor(t / steg);       // vrid[2], vrid[1], sen framifrån
             if (i >= 1) return { lage: 'vrid', rekt: figur.vrid[i] };
             t -= 2 * steg;
         }
         if (!START_MS) return { lage: 'fram', rekt: figur.vrid[0] };
+        const sov = t * 1000 - SOMNAR_MS;
+        if (sov >= 0) {
+            const somnar = animMs('somnar');
+            return sov < somnar ? { lage: 'somnar', rekt: rutaI('somnar', sov, false) }
+                                : { lage: 'sover', rekt: rutaI('sover', sov - somnar, true) };
+        }
         let ms = (t * 1000) % START_MS;
         for (const namn of figur.start) {
             for (const r of figur.animationer[namn]) {
@@ -647,6 +687,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function borja() {
         tillstand = 'spelar';
         lageBorjade = tid;
+        vaknarVid = null;
         poang = 0;
         nyttRekord = false;
         staplar = [];
@@ -690,8 +731,16 @@ document.addEventListener('DOMContentLoaded', () => {
         flaxa();
     }
 
+    // Sover figuren (eller håller på att somna) på startskärmen?
+    function sover() {
+        const r = tillstand === 'start' && vaknarVid === null ? figurRuta() : null;
+        return !!r && (r.lage === 'somnar' || r.lage === 'sover');
+    }
+
     function tryck() {
         if (tillstand === 'start') {
+            if (vaknarVid !== null) return;          // ruskar igång sig, vänta
+            if (sover()) { vaknarVid = tid; return; }
             borja();
         } else if (tillstand === 'spelar') {
             flaxa();
@@ -719,6 +768,8 @@ document.addEventListener('DOMContentLoaded', () => {
         fig.rekordTid += dt;
 
         if (tillstand === 'start') {
+            // Vaknat och ruskat färdigt: flyg iväg
+            if (vaknarVid !== null && (tid - vaknarVid) * 1000 >= animMs('vaknar')) borja();
             rullat += bana.fart * dt;
             // Svävar sakta (andas och vinkar gör den i figurRuta)
             fig.y = START_Y + Math.sin(tid * 1.6) * 3;
@@ -838,10 +889,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Textrutan står med underkanten strax ovanför figurens högsta punkt på
-    // startskärmen (armen när den vinkar), hur många rader texten än blir.
+    // startskärmen (Z:na när den sover, armen när den vinkar), hur många
+    // rader texten än blir.
     const FIGUR_TOPP = (() => {
         let topp = 0;
-        for (const namn of figur.start || []) {
+        const pa_start = (figur.start || []).concat(KAN_SOVA ? ['somnar', 'sover', 'vaknar'] : []);
+        for (const namn of pa_start) {
             for (const r of figur.animationer[namn]) {
                 for (const kloss of r.rekt) topp = Math.min(topp, kloss[1]);
             }

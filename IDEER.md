@@ -12,11 +12,6 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 Nya animationer görs i figurens eget ritverktyg, exporteras och läses in
 med `verktyg/las_figur.py`.
 
-- [ ] **Somnar** på startskärmen om ingen trycker på ca 20–30 s: somnar
-  (ögonen blir streck, kroppen sjunker ihop), sover i loop med Z-klossar.
-  Ett tryck: vaknar och **ruskar igång sig** (ca 0,5 s, tryck under tiden
-  räknas inte), vrider sig och flyger iväg. Animationerna `somnar`,
-  `sover`, `vaknar` beställda i figurens export (2026-10-09).
 - [ ] **Jubel ur exporten** (`FIGUR_DATA.keiws.jubel`, åt höger) vid nytt
   rekord, i stället för spelets egna armar.
 
@@ -100,5 +95,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
   `figur_data.js`) i stället för handkopierade mått.
 - [x] keIWs står framifrån på startskärmen, andas och vinkar ibland, vrider
   sig åt höger när man trycker igång och tillbaka efter en runda.
+- [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
+  Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
+  tiden räknas inte), vrider sig och flyger iväg av sig själv.
 - [x] Solen syns på dagen. Solen och månen går upp och ner i raka linjer
   efter klockan (solen ner 18–20, upp 06–08).

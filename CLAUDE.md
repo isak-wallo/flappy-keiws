@@ -64,8 +64,8 @@ där.
 |-----|------|
 | `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figur_data.js`, `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
 | `typsnitt.js` | `TYPSNITT`: eget pixeltypsnitt (versaler 7 rutor, gemener 5, svansar 2 under, åäö) och `pixeltext(text, px)`, som ger HTML med ett SVG per ord plus osynlig riktig text. Saknas ett tecken ritas `?` — lägg till det i `tecken`. |
-| `figur_data.js` | **Genererad** av `verktyg/las_figur.py` från figurens export (keiws.json): `FIGUR_DATA` med färger, `vrid[0..3]` (framifrån → sidan åt höger), blink, animationerna `idle`, `vinka`, `jubel`, och Ond. Ändra inte för hand. |
-| `figurer.js` | `FIGURER`: bygger figurerna ur `FIGUR_DATA` (`figurUrExport`): färdiga lägen/animationer, och sidovyn som `klossar` med roller `kropp`/`arm`/`oga`/`ben` (`DEL_ROLL`). Plus spelets egna värden: `skala`, `blink`, `start` (ordningen på startskärmens animationer), `vridMs`, `jubel`, `rekord`, `krasch`, `mitt`, träffyta `traff`. |
+| `figur_data.js` | **Genererad** av `verktyg/las_figur.py` från figurens export (keiws.json): `FIGUR_DATA` med färger, `vrid[0..3]` (framifrån → sidan åt höger), blink, animationerna `idle`, `vinka`, `jubel`, `somnar`, `sover`, `vaknar`, och Ond. Ändra inte för hand. |
+| `figurer.js` | `FIGURER`: bygger figurerna ur `FIGUR_DATA` (`figurUrExport`): färdiga lägen/animationer, och sidovyn som `klossar` med roller `kropp`/`arm`/`oga`/`ben` (`DEL_ROLL`). Plus spelets egna värden: `skala`, `blink`, `start` (ordningen på startskärmens animationer), `vridMs`, `somnaEfter`, `jubel`, `rekord`, `krasch`, `mitt`, träffyta `traff`. |
 | `verktyg/las_figur.py` | Läser figurens export och skriver om `figur_data.js`: `python verktyg/las_figur.py SÖKVÄG/keiws.json`. Kör testerna och bumpa `VERSION` efteråt. |
 | `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler), medaljer och färger. `natt` tar över allt från `angen` (`...BANOR.angen`) och byter färger. `angen.dygn` + `angen.paletter` (dag, skymning, natt, gryning) styr färgerna efter klockan. Stapelns färg är ett nummer i `farger.staplar`, så den följer med. |
 | `app.js` | Spelet: loop, fysik, kollisioner, ritning, poäng, layout, styrning, helskärm, SW-registrering. Väljer figur och bana högst upp (`figur`, `bana`). |
@@ -101,7 +101,11 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   8/4 px nedåt efter ett flax (`benSack`). Ögonen blinkar och blundar vid
   krasch (`blundar`). På startskärmen och när den vrider sig ritas färdiga
   rutor ur exporten (`figurRuta`, `ritaRektar`): framifrån andas den och
-  vinkar ibland (`figur.start`), när man trycker igång vrider den sig åt
+  vinkar ibland (`figur.start`). Efter `somnaEfter` s utan tryck somnar den
+  (vid slutet av en animation, `SOMNAR_MS`) och sover i loop; ett tryck då
+  väcker den (`vaknarVid`, animationen `vaknar`, tryck räknas inte under
+  tiden) och sedan startar spelet av sig självt. `?somna=2` i adressen
+  somnar efter 2 s. När man trycker igång vrider den sig åt
   höger i tre steg (`vridMs`), och efter en runda vrider den sig tillbaka
   framåt (`vriderTillbaka`). Medan den flyger ritas sidovyn med klossar och
   roller. När en stapel klaras jublar den med

@@ -9,8 +9,9 @@
 //
 // 1. Färdiga lägen och animationer ur exporten, ruta för ruta: på
 //    startskärmen står figuren framifrån (`idle`, `vinka` i ordningen
-//    `start`) och vrider sig åt höger när man trycker igång (`vrid`, ett
-//    steg per `vridMs`).
+//    `start`), somnar efter `somnaEfter` s (`somnar`, sedan `sover` i
+//    loop), vaknar och ruskar på sig vid ett tryck (`vaknar`) och vrider
+//    sig åt höger när den börjar flyga (`vrid`, ett steg per `vridMs`).
 //
 // 2. Medan den flyger: sidovyn (`vrid[3]`) som `klossar` med en roll var,
 //    som spelet flyttar själv:
@@ -39,7 +40,7 @@ function figurUrExport(d) {
     return {
         farger: d.farger,
         vrid: d.vrid,
-        animationer: { idle: d.idle, vinka: d.vinka },
+        animationer: { idle: d.idle, vinka: d.vinka, somnar: d.somnar, sover: d.sover, vaknar: d.vaknar },
         klossar: d.vrid[3].map(([x0, y0, x1, y1, farg, del]) =>
             [x0, y0, x1, y1, DEL_ROLL[del], farg])
     };
@@ -57,6 +58,10 @@ const FIGURER = {
         // Ett andetag är ca 2,8 s, en vinkning ca 2,4 s.
         start: ['idle', 'vinka', 'idle', 'idle', 'idle'],
         vridMs: 90,
+        // Somnar om ingen trycker på så här många sekunder (vid nästa
+        // ledigt läge i startanimationerna), sover sedan i loop. Ett tryck
+        // när den sover: vaknar och ruskar igång sig, flyger sedan iväg.
+        somnaEfter: 25,
         // Jublar: armarna hoppar upp [lyft, ms] och keIWs kisar av glädje
         // de första `blinkMs`.
         jubel: {

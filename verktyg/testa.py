@@ -13,6 +13,8 @@ finns window.spelet att läsa) och kontrollerar att:
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
+  - figuren somnar på startskärmen, vaknar och ruskar på sig vid ett tryck
+    och flyger sedan iväg av sig själv,
   - sidan också går att öppna i datorformat (bred skärm).
 
     python verktyg/testa.py                 # ca 30 s, skriver OK/FEL
@@ -218,6 +220,29 @@ def main():
               and himmel['19.5'] not in (dag, nattF) and himmel['7'] not in (dag, nattF),
               'klockan styr färgerna (dag 12, skymning 19.30, natt 23, gryning 7)')
         kolla(not nattfel, 'inga JavaScript-fel på natten' + (': ' + ' | '.join(nattfel) if nattfel else ''))
+
+        # --- Somnar och vaknar (?somna=1: somnar efter 1 s i stället för 25) ---
+        sov = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+        sovfel = []
+        sov.on('pageerror', lambda e: sovfel.append(str(e)))
+        sov.goto(url + '?test&somna=1')
+        sov.wait_for_function('window.spelet !== undefined', timeout=5000)
+        try:
+            sov.wait_for_function("spelet.figurLage === 'sover'", timeout=15000)
+            sover = True
+        except Exception:
+            sover = False
+        kolla(sover, 'figuren somnar på startskärmen')
+        bild(sov, '7-sover.png')
+        sov.keyboard.press('Space')
+        time.sleep(0.1)
+        kolla(sov.evaluate('spelet.figurLage') == 'vaknar' and sov.evaluate('spelet.tillstand') == 'start',
+              'ett tryck väcker figuren, den ruskar på sig innan den flyger')
+        sov.keyboard.press('Space')                   # räknas inte under ruskningen
+        bild(sov, '7a-vaknar.png')
+        time.sleep(0.8)
+        kolla(sov.evaluate('spelet.tillstand') == 'spelar', 'efter ruskningen flyger den iväg av sig själv')
+        kolla(not sovfel, 'inga JavaScript-fel när den sover' + (': ' + ' | '.join(sovfel) if sovfel else ''))
 
         # --- Dator, bred skärm ---
         dator = b.new_page(viewport={'width': 1280, 'height': 800})
