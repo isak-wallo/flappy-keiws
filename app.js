@@ -104,21 +104,34 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Färgerna just nu: banans egna, eller dygnets efter klockan.
-    function fargerNu() {
-        const D = bana.dygn;
-        if (!D) return bana.farger;
-        let h = klockslag();
-        if (h < D[0][0]) h += 24;
-        for (let i = 0; i < D.length; i++) {
-            const [ta, a] = D[i];
-            const [tb0, b] = D[(i + 1) % D.length];
-            const tb = i === D.length - 1 ? tb0 + 24 : tb0;
-            if (h >= ta && h < tb) {
-                return blandaPalett(bana.paletter[a], bana.paletter[b], (h - ta) / (tb - ta));
-            }
+    // Var på dygnet är vi? punkter = [[klockslag, värde], ...] i ordning.
+    // Ger [värdet före, värdet efter, t 0–1 mellan dem], runt midnatt också.
+    function iDygnet(punkter, h) {
+        if (punkter.length === 1) return [punkter[0][1], punkter[0][1], 0];
+        if (h < punkter[0][0]) h += 24;
+        for (let i = 0; i < punkter.length; i++) {
+            const [ta, a] = punkter[i];
+            const [tb0, b] = punkter[(i + 1) % punkter.length];
+            const tb = i === punkter.length - 1 ? tb0 + 24 : tb0;
+            if (h >= ta && h < tb) return [a, b, (h - ta) / (tb - ta)];
         }
-        return bana.farger;
+        return [punkter[0][1], punkter[0][1], 0];
     }
+
+    function fargerNu() {
+        if (!bana.dygn) return bana.farger;
+        const [a, b, t] = iDygnet(bana.dygn, klockslag());
+        return blandaPalett(bana.paletter[a], bana.paletter[b], t);
+    }
+
+    // Solens och månens höjd just nu (rak linje mellan punkterna).
+    function hojdNu(namn) {
+        const banan = bana.himlakroppar && bana.himlakroppar[namn];
+        if (!banan) return undefined;
+        const [a, b, t] = iDygnet(banan, klockslag());
+        return a + (b - a) * t;
+    }
+    let solHojd = hojdNu('sol'), maneHojd = hojdNu('mane');
 
     // Ritar en rektangel i världskoordinater, avrundad till hela
     // skärmpixlar så att allt blir skarpt (pixelstil).
@@ -381,7 +394,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Månen och solen: pixliga runda skivor (8×8). Månen har kratrar ('o')
     // och står till höger, solen har en kant ('k') och står till vänster.
     // De är så långt bort att de inte rullar med banan, men går upp och
-    // ner med klockan (F.maneHojd, F.solHojd). Kullarna och marken ritas
+    // ner med klockan (`himlakroppar` i banor.js). Kullarna och marken ritas
     // efter, så de går ner bakom dem.
     const MANE = [
         '..####..',
@@ -410,7 +423,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function ritaHimlakropp(bild, x0, hojd, farger) {
         if (hojd === undefined) return;
         const k = 6;
-        const topp = Math.max(vyY0, 0) + 70, horisont = MARK_Y - 40;
+        const topp = Math.max(vyY0, 0) + 70, horisont = MARK_Y - 90;   // horisont = kullarnas topp
         const y0 = horisont - hojd * (horisont - topp);
         if (y0 > MARK_Y || y0 + 8 * k < vyY0) return;
         bild.forEach((rad, y) => {
@@ -421,11 +434,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function ritaMane() {
-        ritaHimlakropp(MANE, vyX0 + vyB - 90, F.maneHojd, { '#': F.mane, o: F.maneSkugga });
+        ritaHimlakropp(MANE, vyX0 + vyB - 90, maneHojd, { '#': F.mane, o: F.maneSkugga });
     }
 
     function ritaSol() {
-        ritaHimlakropp(SOL, vyX0 + 40, F.solHojd, { '#': F.sol, k: F.solKant });
+        ritaHimlakropp(SOL, vyX0 + 40, solHojd, { '#': F.sol, k: F.solKant });
     }
 
     // Molnen ligger utspridda och glider sakta förbi (en tiondel av farten).
@@ -670,7 +683,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function uppdatera(dt) {
         tid += dt;
-        if (Math.floor(tid) !== Math.floor(tid - dt)) F = fargerNu();   // varje sekund
+        if (Math.floor(tid) !== Math.floor(tid - dt)) {                 // varje sekund
+            F = fargerNu();
+            solHojd = hojdNu('sol');
+            maneHojd = hojdNu('mane');
+        }
         if (tillstand === 'paus') return;   // allt står still
         fig.flaxTid += dt;
         poangTid += dt;

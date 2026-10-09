@@ -52,12 +52,11 @@ const BANOR = {
     }
 };
 
-// Himlakroppar och stjärnor finns i varje palett som tal, så att de kan
-// glida mellan paletterna: `stjarnLjus` (0 = inga stjärnor, 1 = alla),
-// `maneHojd` och `solHojd` (0 = vid horisonten, 1 = högt upp, under 0
-// eller över 1 = utanför bilden).
+// Stjärnorna finns i varje palett som ett tal, så att de tänds och släcks
+// när paletterna glider över: `stjarnLjus` (0 = inga, 1 = alla). Solen och
+// månen har egna banor efter klockan (`himlakroppar`).
 Object.assign(BANOR.angen.farger, {
-    stjarnLjus: 0, maneHojd: -0.3, solHojd: 1.7,
+    stjarnLjus: 0,
     stjarna: '#f3efd6', stjarnaSvag: '#8c9abb',
     mane: '#efe7c4', maneSkugga: '#d3c99e',
     sol: '#fbe7a1', solKant: '#f3cf72'
@@ -84,7 +83,7 @@ BANOR.natt = {
         jordRand: '#433f58',
         siffror: '#ffffff',
         sifferSkugga: '#18223b',
-        stjarnLjus: 1, maneHojd: 1, solHojd: -0.4,
+        stjarnLjus: 1,
         stjarna: '#f3efd6', stjarnaSvag: '#8c9abb',
         mane: '#efe7c4', maneSkugga: '#d3c99e',
         sol: '#f7b65a', solKant: '#e8894a'
@@ -112,7 +111,7 @@ BANOR.angen.paletter = {
         jordRand: '#957b78',
         siffror: '#ffffff',
         sifferSkugga: '#474c82',
-        stjarnLjus: 0.25, maneHojd: 0.4, solHojd: 0.12,
+        stjarnLjus: 0.25,
         stjarna: '#f3efd6', stjarnaSvag: '#8c9abb',
         mane: '#efe7c4', maneSkugga: '#d3c99e',
         sol: '#f7b65a', solKant: '#e8894a'
@@ -132,12 +131,21 @@ BANOR.angen.paletter = {
         jordRand: '#b39f8a',
         siffror: '#ffffff',
         sifferSkugga: '#5d6fa0',
-        stjarnLjus: 0.15, maneHojd: 0.2, solHojd: 0.15,
+        stjarnLjus: 0.15,
         stjarna: '#f3efd6', stjarnaSvag: '#8c9abb',
         mane: '#efe7c4', maneSkugga: '#d3c99e',
         sol: '#f9d27a', solKant: '#efa65c'
     }
 };
+// Solen och månen följer klockan i raka linjer mellan punkterna
+// [klockslag, höjd]: 1 = högt uppe, 0 = vid horisonten, -0.2 = helt nere
+// bakom kullarna. Solen går ner 18–20 och upp 06–08, månen tvärtom.
+BANOR.angen.himlakroppar = {
+    sol: [[6, -0.2], [8, 1], [18, 1], [20, -0.2]],
+    mane: [[6, 1], [8, -0.2], [18, -0.2], [20, 1]]
+};
+BANOR.natt.himlakroppar = { sol: [[0, -0.2]], mane: [[0, 1]] };
+
 BANOR.angen.dygn = [
     [6, 'natt'], [7, 'gryning'], [8, 'dag'],
     [18, 'dag'], [19.5, 'skymning'], [21, 'natt']

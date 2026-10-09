@@ -98,3 +98,5 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Nattbana med stjärnor och måne.
 - [x] Dygnet följer klockan: skymning 18–21 (solen går ner, månen upp),
   natt 21–06, gryning 06–08, dag 08–18. Färgerna glider över.
+- [x] Solen syns på dagen. Solen och månen går upp och ner i raka linjer
+  efter klockan (solen ner 18–20, upp 06–08).

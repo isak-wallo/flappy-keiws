@@ -33,8 +33,10 @@ där.
   dag 08–18, skymning 18–21 (persika/lila, solen går ner, månen upp),
   natt 21–06 (stjärnor, måne, blå staplar), gryning 06–08. Paletterna står i
   `angen.paletter` och glider över i varandra (`fargerNu`, `blandaPalett`,
-  räknas om varje sekund, även mitt i en runda). Sol, måne och stjärnor
-  styrs av talen `solHojd`, `maneHojd` och `stjarnLjus` i paletten.
+  räknas om varje sekund, även mitt i en runda). Stjärnorna styrs av
+  talet `stjarnLjus` i paletten. Solen och månen har egna raka banor efter
+  klockan (`angen.himlakroppar`, `hojdNu`): solen uppe 08–18, ner 18–20,
+  upp 06–08; månen tvärtom. Höjd 0 = kullarnas topp.
   `?klocka=19.5` i adressen låtsas att klockan är 19.30. `?bana=natt` ger
   bara natt (banan `natt`, utan dygn).
 - Tryck/klick/mellanslag/pil upp/W/Enter = flaxa. Lägen: `start` (figuren
