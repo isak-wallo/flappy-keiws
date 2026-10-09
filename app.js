@@ -10,21 +10,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Menyknappen: kugghjul (14×14 pixlar, åtta breda kuggar) och "Meny"
+    // Menyknappen: ett slätt kugghjul (12 kuggar, ritat som vektor i
+    // stället för pixlar så att det blir tydligt) och texten "Meny"
     menyknapp.innerHTML = (() => {
-        const bild = ['.....####.....', '.....####.....', '.##.######.##.',
-                      '.############.', '..##########..', '..####..####..',
-                      '#####....#####', '#####....#####', '..####..####..',
-                      '..##########..', '.############.', '.##.######.##.',
-                      '.....####.....', '.....####.....'];
-        let rutor = '';
-        bild.forEach((rad, y) => {
-            for (let x = 0; x < rad.length; x++) {
-                if (rad[x] === '#') rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+        const n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
+        const steg = 2 * Math.PI / n, p = [];
+        for (let i = 0; i < n; i++) {
+            for (const [da, r] of [[-rot / 2, inre], [-topp / 2, yttre], [topp / 2, yttre], [rot / 2, inre]]) {
+                const a = (i + da) * steg;
+                p.push((12 + r * Math.sin(a)).toFixed(2) + ' ' + (12 - r * Math.cos(a)).toFixed(2));
             }
-        });
-        return '<svg width="28" height="28" viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor">' +
-            rutor + '</svg>' + pixeltext('Meny', 3);
+        }
+        const d = 'M' + p.join(' L') + ' Z M' + (12 + hal) + ' 12 A' + hal + ' ' + hal +
+            ' 0 1 0 ' + (12 - hal) + ' 12 A' + hal + ' ' + hal + ' 0 1 0 ' + (12 + hal) + ' 12 Z';
+        return '<svg width="28" height="28" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="' +
+            d + '"/></svg>' + pixeltext('Meny', 3);
     })();
 
     // --- Val (blir inställningar längre fram) ---
