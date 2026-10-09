@@ -48,6 +48,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 
 - [ ] **Dagens bana**: slumpen styrs av datumet, så alla får samma staplar
   samma dag och kan jämföra poäng utan server. Eget rekord för dagens bana.
+## 6. Senare
+
 - [ ] **Ljud**: korta pixelpip som genereras i koden (Web Audio, inga
   ljudfiler) för flax, poäng och krasch. Med av/på-knapp, av från början?
 - [ ] **Figurval**, om fler figurer dyker upp.
