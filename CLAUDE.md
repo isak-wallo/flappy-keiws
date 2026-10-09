@@ -118,7 +118,8 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   roller. När en stapel klaras jublar den med
   armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Slår man sitt
   rekord gör den ett glädjeskutt ur exporten (animationen `jubel`, i
-  `figurRuta`, styrs av `fig.rekordTid`). Vid krasch (`krockRuta`):
+  `figurRuta`, styrs av `fig.rekordTid`, `REKORD_JUBEL` gånger i rad;
+  poängen blinkar i guld under tiden, `REKORD_BLINK`). Vid krasch (`krockRuta`):
   smällen `krock` (spelas klart även om den landar direkt), `faller` i
   loop medan den faller, `landar` (studs) och sedan `yr` i loop med
   stjärnor. Figurer utan krockanimation sträcker upp armarna och studsar

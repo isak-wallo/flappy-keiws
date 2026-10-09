@@ -59,6 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const START_Y = 280;             // där figuren svävar innan man börjar
     const STEG = 1 / 120;            // fast tidssteg för fysiken (s)
     const VISA_KRASCH_EFTER = 0.5;   // s efter landning innan rutan visas
+    const REKORD_JUBEL = 2;          // så många gånger figuren jublar när rekordet slås
     const OMSTART_SPARR = 400;       // ms innan man kan starta om efter krasch
     const BAST_NYCKEL = 'flappy-keiws-bast';
 
@@ -277,8 +278,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const i = 1 + Math.floor(t / steg);       // vrid[1], vrid[2], sen sidan
             if (i < 3) return { lage: 'vrid', rekt: figur.vrid[i] };
             const ms = fig.rekordTid * 1000;
-            if (figur.animationer.jubel && ms < animMs('jubel')) {
-                return { lage: 'jubel', rekt: rutaI('jubel', ms, false) };
+            if (figur.animationer.jubel && ms < REKORD_JUBEL * animMs('jubel')) {
+                return { lage: 'jubel', rekt: rutaI('jubel', ms, true) };
             }
             return null;
         }
@@ -624,7 +625,12 @@ document.addEventListener('DOMContentLoaded', () => {
         return 0;
     }
 
+    // Poängen blinkar i guld en stund när rekordet slås.
+    const REKORD_BLINK = 1.6, REKORD_GULD = '#f8d648';
     function ritaPoang(n, mittX, y, k) {
+        const rekord = tillstand === 'spelar' && fig.rekordTid < REKORD_BLINK &&
+            Math.floor(fig.rekordTid / 0.16) % 2 === 0;
+        const farg = rekord ? REKORD_GULD : F.siffror;
         const text = String(n);
         const b = text.length * 4 * k - k;
         let x = mittX - b / 2;
@@ -638,7 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             for (let i = 0; i < 15; i++) {
                 if (monster[i] === '1') {
-                    rekt(x + (i % 3) * k, y + Math.floor(i / 3) * k, k, k, F.siffror);
+                    rekt(x + (i % 3) * k, y + Math.floor(i / 3) * k, k, k, farg);
                 }
             }
             x += 4 * k;
