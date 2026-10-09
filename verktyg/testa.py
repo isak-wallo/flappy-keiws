@@ -6,7 +6,8 @@ finns window.spelet att läsa) och kontrollerar att:
   - inga JavaScript-fel uppstår,
   - startrutan visas och figuren vinkar,
   - en bot som läser spelets läge klarar sig förbi några staplar
-    (banan går att spela, poängen räknas),
+    (banan går att spela, poängen räknas) och figuren jublar när
+    rekordet slås,
   - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
   - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa, kraschrutan visas och
@@ -121,8 +122,13 @@ def main():
         jsfel = []
         sida.on('pageerror', lambda e: jsfel.append(str(e)))
         sida.on('console', lambda m: jsfel.append(m.text) if m.type == 'error' else None)
+        # Gammalt rekord 2, så att boten slår det och figuren jublar
+        sida.add_init_script("localStorage.setItem('flappy-keiws-bast', '2')")
         sida.goto(url + '?test')
         sida.wait_for_function('window.spelet !== undefined', timeout=5000)
+        sida.evaluate("""window.sagJubel = false; (function kolla() {
+            if (spelet.figurLage === 'jubel') window.sagJubel = true;
+            requestAnimationFrame(kolla); })()""")
         time.sleep(0.5)
         kolla(sida.evaluate('spelet.tillstand') == 'start', 'spelet börjar i startläget')
         kolla(sida.is_visible('#ruta'), 'startrutan visas')
@@ -165,6 +171,8 @@ def main():
         kolla(poang >= MIN_POANG, 'boten klarade %d staplar på %d s (minst %d), %s'
               % (poang, a.sekunder, MIN_POANG,
                  'kraschade inte' if tillstand == 'spelar' else 'kraschade sen'))
+        if poang >= 3:
+            kolla(sida.evaluate('window.sagJubel'), 'figuren jublar när rekordet slås')
 
         # Sluta flaxa -> krasch -> kraschruta -> tillbaka till start
         sida.evaluate('window.botPa = false')

@@ -12,8 +12,6 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 Nya animationer görs i figurens eget ritverktyg, exporteras och läses in
 med `verktyg/las_figur.py`.
 
-- [ ] **Jubel ur exporten** (`FIGUR_DATA.keiws.jubel`, åt höger) vid nytt
-  rekord, i stället för spelets egna armar.
 
 ## 2. Spelkänsla
 
@@ -98,5 +96,7 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Glädjeskuttet vid nytt rekord är figurens egen jubelanimation ur
+  exporten.
 - [x] Solen syns på dagen. Solen och månen går upp och ner i raka linjer
   efter klockan (solen ner 18–20, upp 06–08).

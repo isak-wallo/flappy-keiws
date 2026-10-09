@@ -174,16 +174,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return null;
     }
 
-    // Skutt vid nytt rekord (bara medan man spelar), annars null.
-    function rekordSkutt() {
-        if (tillstand !== 'spelar' || !figur.rekord) return null;
-        return stegVid(figur.rekord.skutt, fig.rekordTid);
-    }
-
-    // Hela figuren lyfts så här mycket (figurpixlar): skutt vid rekord och
-    // studs när den slår i marken. Bara ritning, träffytan står kvar.
+    // Hela figuren lyfts så här mycket (figurpixlar): studs när den slår i
+    // marken. Bara ritning, träffytan står kvar.
     function figurHopp() {
-        if (tillstand === 'spelar') return rekordSkutt() || 0;
         if (tillstand === 'krasch' && landadTid !== null && figur.krasch) {
             return stegVid(figur.krasch.studs, landadTid) || 0;
         }
@@ -198,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (fig.flaxTid < 0.08) lyft = -24;
         else if (fig.flaxTid < 0.18) lyft = -12;
         else if (fig.v > 380) lyft = -12;    // faller fort: armarna upp
-        if (rekordSkutt() !== null) lyft = Math.min(lyft, figur.rekord.armar);
         return Math.min(lyft, jubelLyft());  // det som är högst upp vinner
     }
 
@@ -238,7 +230,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Ska figuren ritas med en färdig ruta ur exporten just nu? Ger
     // { lage, rekt } eller null (då ritas sidovyn med klossar och roller).
-    //  - spelar: vrider sig från framifrån till sidan de första stegen
+    //  - spelar: vrider sig från framifrån till sidan de första stegen,
+    //    och gör ett glädjeskutt (jubel) när man slår sitt rekord
     //  - start: vrider sig tillbaka (om den kom från en runda), sedan
     //    andas och vinkar den framifrån, om och om igen
     function figurRuta() {
@@ -247,7 +240,12 @@ document.addEventListener('DOMContentLoaded', () => {
         let t = tid - lageBorjade;
         if (tillstand === 'spelar') {
             const i = 1 + Math.floor(t / steg);       // vrid[1], vrid[2], sen sidan
-            return i < 3 ? { lage: 'vrid', rekt: figur.vrid[i] } : null;
+            if (i < 3) return { lage: 'vrid', rekt: figur.vrid[i] };
+            const ms = fig.rekordTid * 1000;
+            if (figur.animationer.jubel && ms < animMs('jubel')) {
+                return { lage: 'jubel', rekt: rutaI('jubel', ms, false) };
+            }
+            return null;
         }
         if (tillstand !== 'start') return null;
         if (vaknarVid !== null) {
@@ -312,8 +310,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // blinkar ibland. (På startskärmen blinkar den i sina animationer.)
     function blundar() {
         if (tillstand === 'krasch') return true;
-        const skutt = rekordSkutt();
-        if (skutt !== null && skutt <= figur.rekord.blinkUnder) return true;
         return jublar() || (tid % 3.2) < 0.12;
     }
 
