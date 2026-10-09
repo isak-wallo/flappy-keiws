@@ -8,6 +8,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const canvas = document.getElementById('spel');
     const ctx = canvas.getContext('2d');
     const ruta = document.getElementById('ruta');
+    const menyknapp = document.getElementById('menyknapp');
+
+    // Kugghjulet för menyn, 8×8 pixlar
+    menyknapp.innerHTML = (() => {
+        const bild = ['...##...', '.######.', '.##..##.', '###..###',
+                      '###..###', '.##..##.', '.######.', '...##...'];
+        let rutor = '';
+        bild.forEach((rad, y) => {
+            for (let x = 0; x < rad.length; x++) {
+                if (rad[x] === '#') rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+            }
+        });
+        return '<svg width="32" height="32" viewBox="0 0 8 8" shape-rendering="crispEdges" fill="#f5faf8">' +
+            rutor + '</svg>';
+    })();
 
     // --- Val (blir inställningar längre fram) ---
     const figur = FIGURER.keiws;
@@ -20,8 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
     // gryning, dag), se `dygn` i banor.js. ?klocka=19.5 i adressen låtsas
     // att klockan är 19.30, för att se hur det ser ut.
     const KLOCKA_I_ADRESS = (/[?&]klocka=([\d.]+)/.exec(location.search) || [])[1];
+    // Tid i menyn: auto (följer klockan) eller en fast tid på dygnet.
+    const TIDER = [['auto', 'Auto'], ['dag', 'Dag', 12], ['skymning', 'Skymning', 19.5],
+                   ['natt', 'Natt', 0], ['gryning', 'Gryning', 7]];
+    const TID_NYCKEL = 'flappy-keiws-tid';
+    let tidVal = lasVal(TID_NYCKEL, TIDER.map(t => t[0]), 'auto');
     function klockslag() {
         if (KLOCKA_I_ADRESS !== undefined) return parseFloat(KLOCKA_I_ADRESS) % 24;
+        const fast = TIDER.find(t => t[0] === tidVal);
+        if (fast && fast[2] !== undefined) return fast[2];
         const d = new Date();
         return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
     }
@@ -82,6 +104,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function sparaBast(n) {
         try { localStorage.setItem(BAST_NYCKEL, String(n)); } catch (e) {}
+    }
+
+    // Ett sparat val ur en lista (annars `annars`), och spara ett val.
+    function lasVal(nyckel, tillatna, annars) {
+        try {
+            const v = localStorage.getItem(nyckel);
+            return tillatna.includes(v) ? v : annars;
+        } catch (e) { return annars; }
+    }
+
+    function sparaVal(nyckel, v) {
+        try { localStorage.setItem(nyckel, v); } catch (e) {}
     }
 
     // Blandar två färger '#rrggbb' (t = 0..1).
@@ -623,8 +657,64 @@ document.addEventListener('DOMContentLoaded', () => {
             '<p>' + pixeltext('Tryck för att flyga', TEXT) + '</p>' +
             (bast > 0 ? '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>' : '') +
             (version ? '<p class="version">' + pixeltext(version, 1) + '</p>' : '');
-        ruta.classList.remove('dold');
+        ruta.classList.remove('dold', 'meny');
+        menyknapp.classList.remove('dold');
+        menyOppen = false;
         placeraRuta();
+    }
+
+    // ------------------------------------------------------------------
+    // Menyn (kugghjulet på startskärmen): tid på dygnet och nollställ rekord
+    // ------------------------------------------------------------------
+
+    let menyOppen = false;
+    let nollstallFraga = false;      // första trycket på "Nollställ rekord"
+
+    function visaMeny() {
+        const tidNamn = TIDER.find(t => t[0] === tidVal)[1];
+        const rekord = nollstallFraga ? 'Säker? Tryck igen'
+            : bast > 0 ? 'Nollställ rekord: ' + bast : 'Inget rekord än';
+        ruta.innerHTML =
+            '<h1>' + pixeltext('Meny', TEXT_STOR) + '</h1>' +
+            '<div class="val" data-val="tid">' + pixeltext('Tid: ' + tidNamn, TEXT) + '</div>' +
+            '<div class="val' + (nollstallFraga ? ' varning' : '') + '" data-val="rekord">' +
+                pixeltext(rekord, TEXT) + '</div>' +
+            '<div class="val" data-val="klar">' + pixeltext('Klar', TEXT) + '</div>';
+        ruta.classList.remove('dold');
+        ruta.classList.add('meny');
+        menyknapp.classList.add('dold');
+        menyOppen = true;
+        placeraRuta();
+    }
+
+    function stangMeny() {
+        nollstallFraga = false;
+        visaStartruta();
+    }
+
+    // Ett tryck när menyn är öppen: på ett val, annars stängs menyn.
+    function tryckIMeny(mal) {
+        const val = mal && mal.closest && mal.closest('[data-val]');
+        const vad = val ? val.dataset.val : 'klar';
+        if (vad === 'tid') {
+            const i = TIDER.findIndex(t => t[0] === tidVal);
+            tidVal = TIDER[(i + 1) % TIDER.length][0];
+            sparaVal(TID_NYCKEL, tidVal);
+            F = fargerNu();
+            solHojd = hojdNu('sol');
+            maneHojd = hojdNu('mane');
+            nollstallFraga = false;
+            visaMeny();
+        } else if (vad === 'rekord') {
+            if (bast === 0) return;
+            if (!nollstallFraga) { nollstallFraga = true; visaMeny(); return; }
+            bast = 0;
+            sparaBast(0);
+            nollstallFraga = false;
+            visaMeny();
+        } else {
+            stangMeny();
+        }
     }
 
     function visaPausruta() {
@@ -708,6 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function borja() {
         tillstand = 'spelar';
+        menyknapp.classList.add('dold');
         lageBorjade = tid;
         vaknarVid = null;
         poang = 0;
@@ -761,6 +852,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function tryck() {
+        if (menyOppen) return;
         if (tillstand === 'start') {
             if (vaknarVid !== null) return;          // ruskar igång sig, vänta
             if (sover()) { vaknarVid = tid; return; }
@@ -965,11 +1057,23 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('pointerdown', e => {
         e.preventDefault();
         if (e.pointerType === 'touch') forsokHelskarm();
+        if (menyOppen) { tryckIMeny(e.target); return; }
+        if (e.target.closest && e.target.closest('#menyknapp')) {
+            if (tillstand === 'start' && vaknarVid === null) visaMeny();
+            return;
+        }
         tryck();
     }, { passive: false });
 
     window.addEventListener('keydown', e => {
         if (e.repeat) return;
+        if (menyOppen) {
+            if (e.code === 'Escape' || e.code === 'Space' || e.code === 'Enter') {
+                e.preventDefault();
+                stangMeny();
+            }
+            return;
+        }
         if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW' || e.code === 'Enter') {
             e.preventDefault();
             tryck();
@@ -994,6 +1098,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.spelet = {
             get tillstand() { return tillstand; },
             get poang() { return poang; },
+            get menyOppen() { return menyOppen; },
+            get tidVal() { return tidVal; },
+            get bast() { return bast; },
             get figurLage() { const r = figurRuta(); return r ? r.lage : 'sida'; },
             get version() { return version; },
             get fig() { return fig; },
@@ -1016,7 +1123,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 .filter(Boolean).map(m => +m[1]);
             if (!nr.length) return;
             version = 'v' + Math.max(...nr);
-            if (tillstand === 'start') visaStartruta();
+            if (tillstand === 'start' && !menyOppen) visaStartruta();
         }).catch(() => {});
     }
 

@@ -56,7 +56,7 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [ ] **Ljud**: korta pixelpip som genereras i koden (Web Audio, inga
   ljudfiler) för flax, poäng och krasch. Med av/på-knapp, av från början?
 - [ ] **Figurval**, om fler figurer dyker upp.
-- [ ] **Inställningar** (lite): lätt/normal, ljud av/på.
+- [ ] **Fler val i menyn** (högst ca fyra): lätt/normal, ljud av/på.
 
 ## Teknik och arbetssätt
 
@@ -95,6 +95,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Meny (kugghjulet på startskärmen): tid på dygnet (auto eller fast)
+  och nollställ rekord.
 - [x] Krock ur figurens export: smäll med stänk, fladdrar i fallet,
   studsar mot marken och blir yr med stjärnor runt huvudet.
 - [x] Olika breda staplar (40–96) från fjärde stapeln.

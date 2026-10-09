@@ -94,6 +94,41 @@ html, body {
     margin-right: 8px;
 }
 
+/* Kugghjulet som öppnar menyn (bara på startskärmen), i pixelstil */
+#menyknapp {
+    position: absolute;
+    top: calc(env(safe-area-inset-top, 0px) + 12px);
+    right: 12px;
+    padding: 6px;             /* lite större yta att träffa */
+    line-height: 0;
+    filter: drop-shadow(3px 3px 0 rgba(47, 63, 76, 0.35));
+}
+
+#menyknapp.dold {
+    display: none;
+}
+
+/* Menyn: rutan blir tryckbar, valen är knappar i pixelstil */
+#ruta.meny {
+    pointer-events: auto;
+    min-width: 80%;           /* valen får plats på en rad */
+}
+
+#ruta .val {
+    margin: 10px 0;
+    padding: 10px 12px;
+    border: 3px solid #5f8292;
+    background-color: #ffffff;
+    font-size: 0;
+    line-height: 0;
+    cursor: pointer;
+}
+
+#ruta .val.varning {
+    border-color: #c0603c;
+    color: #c0603c;
+}
+
 /* Versionen, litet i nedre högra hörnet av startrutan */
 #ruta p.version {
     position: absolute;

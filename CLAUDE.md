@@ -28,7 +28,14 @@ där.
 
 ## Vad spelet gör
 
-- **Stående**, en figur (`keiws`), inga ljud, inga inställningar.
+- **Stående**, en figur (`keiws`), inga ljud.
+- **Menyn**: kugghjulet (`#menyknapp`, bara på startskärmen) öppnar en
+  meny i textrutan (`visaMeny`, `tryckIMeny`, `menyOppen`; rutan blir
+  tryckbar med klassen `meny`). Val: **Tid** (Auto/Dag/Skymning/Natt/
+  Gryning, `TIDER`, sparas i `flappy-keiws-tid`, en fast tid låtsas vara
+  klockslaget i `klockslag()`; `?klocka=` i adressen går före) och
+  **Nollställ rekord** (andra trycket bekräftar). Ett tryck utanför valen,
+  "Klar", Esc/mellanslag/Enter stänger. Plats för fler val (högst ca fyra).
 - En bana, `angen`, vars **färger följer klockan** (`dygn` i banor.js):
   dag 08–18, skymning 18–21 (persika/lila, solen går ner, månen upp),
   natt 21–06 (stjärnor, måne, blå staplar), gryning 06–08. Paletterna står i

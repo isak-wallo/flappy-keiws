@@ -15,6 +15,8 @@ finns window.spelet att läsa) och kontrollerar att:
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
+  - menyn (kugghjulet) öppnas, tiden på dygnet går att välja och sparas,
+    rekordet går att nollställa (efter en fråga),
   - figuren somnar på startskärmen, vaknar och ruskar på sig vid ett tryck
     och flyger sedan iväg av sig själv,
   - sidan också går att öppna i datorformat (bred skärm).
@@ -238,6 +240,48 @@ def main():
               and himmel['19.5'] not in (dag, nattF) and himmel['7'] not in (dag, nattF),
               'klockan styr färgerna (dag 12, skymning 19.30, natt 23, gryning 7)')
         kolla(not nattfel, 'inga JavaScript-fel på natten' + (': ' + ' | '.join(nattfel) if nattfel else ''))
+
+        # --- Menyn: kugghjulet, tid på dygnet, nollställ rekord ---
+        meny = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+        menyfel = []
+        meny.on('pageerror', lambda e: menyfel.append(str(e)))
+        meny.add_init_script("if (!sessionStorage.getItem('klar')) { sessionStorage.setItem('klar', 1);"
+                             " localStorage.setItem('flappy-keiws-bast', '7'); }")
+        meny.goto(url + '?test')
+        meny.wait_for_function('window.spelet !== undefined', timeout=5000)
+        time.sleep(0.3)
+        kolla(meny.is_visible('#menyknapp'), 'kugghjulet syns på startskärmen')
+        meny.click('#menyknapp')
+        time.sleep(0.2)
+        kolla(meny.evaluate('spelet.menyOppen') and meny.evaluate('spelet.tillstand') == 'start'
+              and 'Tid: Auto' in meny.inner_text('#ruta'), 'kugghjulet öppnar menyn (spelet startar inte)')
+        bild(meny, '8-meny.png')
+        meny.click('[data-val=tid]')       # Auto -> Dag
+        meny.click('[data-val=tid]')       # Dag -> Skymning
+        meny.click('[data-val=tid]')       # Skymning -> Natt
+        time.sleep(0.1)
+        kolla(meny.evaluate('spelet.tidVal') == 'natt'
+              and meny.evaluate('spelet.farger.himmelTopp') == meny.evaluate('spelet.bana.paletter.natt.himmelTopp'),
+              'tiden går att välja i menyn (natt)')
+        bild(meny, '8a-meny-natt.png')
+        meny.click('[data-val=rekord]')
+        kolla(meny.evaluate('spelet.bast') == 7 and 'Säker' in meny.inner_text('#ruta'),
+              'nollställ rekord frågar först')
+        meny.click('[data-val=rekord]')
+        kolla(meny.evaluate('spelet.bast') == 0
+              and meny.evaluate("localStorage.getItem('flappy-keiws-bast')") == '0', 'rekordet nollställs')
+        meny.click('[data-val=klar]')
+        time.sleep(0.1)
+        kolla(not meny.evaluate('spelet.menyOppen') and 'Bäst' not in meny.inner_text('#ruta'),
+              'menyn stängs, rekordet syns inte längre')
+        meny.reload()
+        meny.wait_for_function('window.spelet !== undefined', timeout=5000)
+        kolla(meny.evaluate('spelet.tidVal') == 'natt', 'tidsvalet sparas till nästa gång')
+        meny.keyboard.press('Space')
+        time.sleep(0.3)
+        kolla(meny.evaluate('spelet.tillstand') == 'spelar' and not meny.is_visible('#menyknapp'),
+              'spelet startar som vanligt, kugghjulet göms')
+        kolla(not menyfel, 'inga JavaScript-fel i menyn' + (': ' + ' | '.join(menyfel) if menyfel else ''))
 
         # --- Somnar och vaknar (?somna=1: somnar efter 1 s i stället för 25) ---
         sov = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
