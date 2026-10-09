@@ -10,21 +10,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Menyknappen: ett slätt kugghjul (12 kuggar, ritat som vektor i
-    // stället för pixlar så att det blir tydligt) och texten "Meny"
+    // Menyknappen: ett kugghjul (12 kuggar) i ett rutnät om 16×16 pixlar,
+    // och texten "Meny". Kugghjulet räknas fram som en form (kuggar som
+    // smalnar av utåt, runt hål) och ritas sedan i pixlar.
     menyknapp.innerHTML = (() => {
-        const n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
-        const steg = 2 * Math.PI / n, p = [];
-        for (let i = 0; i < n; i++) {
-            for (const [da, r] of [[-rot / 2, inre], [-topp / 2, yttre], [topp / 2, yttre], [rot / 2, inre]]) {
-                const a = (i + da) * steg;
-                p.push((12 + r * Math.sin(a)).toFixed(2) + ' ' + (12 - r * Math.cos(a)).toFixed(2));
+        const N = 16, n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
+        function iKugghjulet(x, y) {               // x, y i 0..24
+            const dx = x - 12, dy = y - 12, r = Math.hypot(dx, dy);
+            if (r <= hal || r > yttre) return false;
+            if (r <= inre) return true;
+            const a = ((Math.atan2(dx, -dy) / (2 * Math.PI) * n) % 1 + 1) % 1;
+            const t = (r - inre) / (yttre - inre);    // 0 vid kuggens rot, 1 i toppen
+            return Math.min(a, 1 - a) <= rot / 2 + (topp - rot) / 2 * t;
+        }
+        let rutor = '';
+        for (let y = 0; y < N; y++) {
+            for (let x = 0; x < N; x++) {
+                if (iKugghjulet((x + 0.5) * 24 / N, (y + 0.5) * 24 / N)) {
+                    rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
+                }
             }
         }
-        const d = 'M' + p.join(' L') + ' Z M' + (12 + hal) + ' 12 A' + hal + ' ' + hal +
-            ' 0 1 0 ' + (12 - hal) + ' 12 A' + hal + ' ' + hal + ' 0 1 0 ' + (12 + hal) + ' 12 Z';
-        return '<svg width="28" height="28" viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="' +
-            d + '"/></svg>' + pixeltext('Meny', 3);
+        return '<svg width="32" height="32" viewBox="0 0 ' + N + ' ' + N +
+            '" shape-rendering="crispEdges" fill="currentColor">' + rutor + '</svg>' + pixeltext('Meny', 3);
     })();
 
     // --- Val (blir inställningar längre fram) ---
