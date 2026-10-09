@@ -1,12 +1,13 @@
 // Höj VERSION (v3 -> v4 osv.) varje gång du laddar upp nya filer,
 // så hämtas och cachas den nya versionen säkert.
-const VERSION = 'v14';
+const VERSION = 'v15';
 const CACHE = 'flappy-keiws-' + VERSION;
 
 const ASSETS = [
   './',
   './index.html',
   './style.css',
+  './figur_data.js',
   './figurer.js',
   './banor.js',
   './typsnitt.js',

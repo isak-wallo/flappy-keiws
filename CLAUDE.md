@@ -62,9 +62,11 @@ där.
 
 | Fil | Roll |
 |-----|------|
-| `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
+| `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figur_data.js`, `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
 | `typsnitt.js` | `TYPSNITT`: eget pixeltypsnitt (versaler 7 rutor, gemener 5, svansar 2 under, åäö) och `pixeltext(text, px)`, som ger HTML med ett SVG per ord plus osynlig riktig text. Saknas ett tecken ritas `?` — lägg till det i `tecken`. |
-| `figurer.js` | `FIGURER`: figurer som klossar i figurens animationsmått (512×304 px per bild), med roller `kropp`/`arm`/`oga`/`ben`, `skala`, `blink` (blinkstreckets höjd), `mitt` och träffyta `traff`. keIWs = sidovyn, speglad åt höger. |
+| `figur_data.js` | **Genererad** av `verktyg/las_figur.py` från figurens export (keiws.json): `FIGUR_DATA` med färger, `vrid[0..3]` (framifrån → sidan åt höger), blink, animationerna `idle`, `vinka`, `jubel`, och Ond. Ändra inte för hand. |
+| `figurer.js` | `FIGURER`: bygger figurerna ur `FIGUR_DATA` (`figurUrExport`): färdiga lägen/animationer, och sidovyn som `klossar` med roller `kropp`/`arm`/`oga`/`ben` (`DEL_ROLL`). Plus spelets egna värden: `skala`, `blink`, `start` (ordningen på startskärmens animationer), `vridMs`, `jubel`, `rekord`, `krasch`, `mitt`, träffyta `traff`. |
+| `verktyg/las_figur.py` | Läser figurens export och skriver om `figur_data.js`: `python verktyg/las_figur.py SÖKVÄG/keiws.json`. Kör testerna och bumpa `VERSION` efteråt. |
 | `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler), medaljer och färger. `natt` tar över allt från `angen` (`...BANOR.angen`) och byter färger. `angen.dygn` + `angen.paletter` (dag, skymning, natt, gryning) styr färgerna efter klockan. Stapelns färg är ett nummer i `farger.staplar`, så den följer med. |
 | `app.js` | Spelet: loop, fysik, kollisioner, ritning, poäng, layout, styrning, helskärm, SW-registrering. Väljer figur och bana högst upp (`figur`, `bana`). |
 | `style.css` | Fullskärm, textrutan i pixelstil. |
@@ -97,8 +99,12 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
 - **Figuren** står still i x (`FIGUR_X`), banan rullar. Armarna flyttas i
   hela steg om 12 figurpixlar vid flax (`armLyft`). Svävande ben sackar
   8/4 px nedåt efter ett flax (`benSack`). Ögonen blinkar och blundar vid
-  krasch (`blundar`). På startskärmen andas den (`andning`, `kroppSank`,
-  rutorna i `figur.andning`), och när en stapel klaras jublar den med
+  krasch (`blundar`). På startskärmen och när den vrider sig ritas färdiga
+  rutor ur exporten (`figurRuta`, `ritaRektar`): framifrån andas den och
+  vinkar ibland (`figur.start`), när man trycker igång vrider den sig åt
+  höger i tre steg (`vridMs`), och efter en runda vrider den sig tillbaka
+  framåt (`vriderTillbaka`). Medan den flyger ritas sidovyn med klossar och
+  roller. När en stapel klaras jublar den med
   armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Slår man sitt
   rekord gör den ett skutt (`rekordSkutt`, `figur.rekord`), och vid krasch
   sträcker den upp armarna och studsar mot marken (`figur.krasch`). Skutt
@@ -121,8 +127,10 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
 
 ## Bygga ut (förberett)
 
-- **Ny figur**: nytt objekt i `FIGURER`, byt `figur` i `app.js`. Senare:
-  figurval i startrutan.
+- **Ny figur**: nytt objekt i `FIGURER` (gärna `figurUrExport` på en figur i
+  `FIGUR_DATA`), byt `figur` i `app.js`. Senare: figurval i startrutan.
+  Ond finns redan i `FIGUR_DATA.ond` (lägen, inga egna animationer).
+- **Ändrad figur**: kör `verktyg/las_figur.py` på den nya exporten.
 - **Ny bana**: kopiera `angen` i `BANOR`, ändra värden/färger. Senare:
   banval, svårighet som ökar under banan, nya hindertyper.
 - Ljud är medvetet bortvalt tills vidare.

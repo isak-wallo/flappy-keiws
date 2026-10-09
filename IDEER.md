@@ -9,15 +9,13 @@ idéer skrivs in där de passar.
 
 Bara klossar som flyttas, ingen rotation. Armarna flyttas i hopp, alltid
 minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
+Nya animationer görs i figurens eget ritverktyg, exporteras och läses in
+med `verktyg/las_figur.py`.
 
-- [ ] **Vinkar på startskärmen** ibland: höger arm (framifrån) hoppar
-  upp bredvid huvudet och vinkar tre gånger (130 ms per läge), vänster arm
-  gungar 0/4 px i takt, blicken flyttas 4 px mot handen, kisar ca 300 ms
-  innan armen hoppar ner.
-- [ ] **Vrider sig** från framifrån till sidled när man trycker igång: tre
-  steg à 90 ms. Ögon, ben och bortre arm flyttas jämnt mellan lägena
-  (avrundat till 2 px), bortre arm och ben blir mörka efter halva vridningen.
-  Kräver figurens framvy och mellanlägen i `figurer.js`.
+- [ ] **Somnar** på startskärmen om ingen trycker på en stund (behöver en
+  somna-animation i exporten).
+- [ ] **Jubel ur exporten** (`FIGUR_DATA.keiws.jubel`, åt höger) vid nytt
+  rekord, i stället för spelets egna armar.
 
 ## 2. Spelkänsla
 
@@ -67,9 +65,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 
 ## Teknik och arbetssätt
 
-- [ ] **Figurens mått automatiskt**: ett exportskript i figurens eget repo
-  som skriver klossarna (alla vridningar) som JSON, som spelet läser in i
-  stället för handkopierade mått i `figurer.js`.
 - [ ] **Dela upp `app.js`** när den växer (t.ex. ritning, textrutor, banor),
   fortfarande utan byggsteg.
 - [ ] **Slump med frö** (seedad), behövs för "Dagens bana" och gör testerna
@@ -98,5 +93,9 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Nattbana med stjärnor och måne.
 - [x] Dygnet följer klockan: skymning 18–21 (solen går ner, månen upp),
   natt 21–06, gryning 06–08, dag 08–18. Färgerna glider över.
+- [x] Figuren läses in från sin export (`verktyg/las_figur.py` →
+  `figur_data.js`) i stället för handkopierade mått.
+- [x] keIWs står framifrån på startskärmen, andas och vinkar ibland, vrider
+  sig åt höger när man trycker igång och tillbaka efter en runda.
 - [x] Solen syns på dagen. Solen och månen går upp och ner i raka linjer
   efter klockan (solen ner 18–20, upp 06–08).

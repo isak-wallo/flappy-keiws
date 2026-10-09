@@ -4,7 +4,7 @@ Startar en egen lokal webbserver för repot, öppnar spelet med ?test (då
 finns window.spelet att läsa) och kontrollerar att:
 
   - inga JavaScript-fel uppstår,
-  - startrutan visas,
+  - startrutan visas och figuren vinkar,
   - en bot som läser spelets läge klarar sig förbi några staplar
     (banan går att spela, poängen räknas),
   - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
@@ -125,11 +125,19 @@ def main():
         kolla(sida.evaluate('spelet.tillstand') == 'start', 'spelet börjar i startläget')
         kolla(sida.is_visible('#ruta'), 'startrutan visas')
         bild(sida, '1-start.png')
+        try:
+            sida.wait_for_function("spelet.figurLage === 'vinka'", timeout=8000)
+            vinkar = True
+        except Exception:
+            vinkar = False
+        kolla(vinkar, 'figuren vinkar på startskärmen')
+        bild(sida, '1a-vinkar.png')
 
         sida.evaluate(BOT)
         sida.keyboard.press('Space')
         time.sleep(0.3)
-        kolla(sida.evaluate('spelet.tillstand') == 'spelar', 'ett tryck startar spelet')
+        kolla(sida.evaluate('spelet.tillstand') == 'spelar' and sida.evaluate('spelet.figurLage') == 'sida',
+              'ett tryck startar spelet, figuren har vridit sig åt sidan')
 
         # Paus: låtsas att sidan göms (byter app), figuren ska stå still
         sida.evaluate(DOLJ)

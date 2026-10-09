@@ -46,6 +46,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Spelets tillstånd: 'start' -> 'spelar' -> 'krasch' -> 'start' ---
     // ('paus' när man lämnar appen mitt i en runda, tillbaka till 'spelar')
     let tillstand = 'start';
+    let lageBorjade = 0;             // tid när start eller spelar började
+    let vriderTillbaka = false;      // start efter en runda: vrid tillbaka framåt
     let tid = 0;                     // s sedan sidan startade (för gungning m.m.)
     let rullat = 0;                  // hur långt banan rullat (för marken)
     let staplar = [];                // { x, mittY, passerad }
@@ -191,7 +193,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // steg om 12 px, som i animationerna.
     function armLyft() {
         if (tillstand === 'krasch') return figur.krasch ? figur.krasch.armar : -12;
-        if (tillstand === 'start') { const a = andning(); return a ? a.arm : 0; }
         let lyft = 0;
         if (fig.flaxTid < 0.08) lyft = -24;
         else if (fig.flaxTid < 0.18) lyft = -12;
@@ -200,20 +201,47 @@ document.addEventListener('DOMContentLoaded', () => {
         return Math.min(lyft, jubelLyft());  // det som är högst upp vinner
     }
 
-    // Andningen på startskärmen: { kropp, arm, blink } för just nu, eller
-    // null om figuren inte har någon andning.
-    function andning() {
-        const an = figur.andning;
-        if (!an) return null;
-        let total = 0;
-        for (const r of an.rutor) total += r[2];
-        let t = (tid * 1000) % total;
-        for (let i = 0; i < an.rutor.length; i++) {
-            const [kropp, arm, ms] = an.rutor[i];
-            if (t < ms) return { kropp, arm, blink: an.blink.includes(i) };
-            t -= ms;
+    // Startskärmens animationer efter varandra (figur.start), längd i ms.
+    const START_MS = figur.start ? figur.start.reduce((s, namn) =>
+        s + figur.animationer[namn].reduce((s2, r) => s2 + r.tid, 0), 0) : 0;
+
+    // Ska figuren ritas med en färdig ruta ur exporten just nu? Ger
+    // { lage, rekt } eller null (då ritas sidovyn med klossar och roller).
+    //  - spelar: vrider sig från framifrån till sidan de första stegen
+    //  - start: vrider sig tillbaka (om den kom från en runda), sedan
+    //    andas och vinkar den framifrån, om och om igen
+    function figurRuta() {
+        if (!figur.vrid) return null;
+        const steg = figur.vridMs / 1000;
+        let t = tid - lageBorjade;
+        if (tillstand === 'spelar') {
+            const i = 1 + Math.floor(t / steg);       // vrid[1], vrid[2], sen sidan
+            return i < 3 ? { lage: 'vrid', rekt: figur.vrid[i] } : null;
         }
-        return null;
+        if (tillstand !== 'start') return null;
+        if (vriderTillbaka) {
+            const i = 2 - Math.floor(t / steg);       // vrid[2], vrid[1], sen framifrån
+            if (i >= 1) return { lage: 'vrid', rekt: figur.vrid[i] };
+            t -= 2 * steg;
+        }
+        if (!START_MS) return { lage: 'fram', rekt: figur.vrid[0] };
+        let ms = (t * 1000) % START_MS;
+        for (const namn of figur.start) {
+            for (const r of figur.animationer[namn]) {
+                if (ms < r.tid) return { lage: namn, rekt: r.rekt };
+                ms -= r.tid;
+            }
+        }
+        return { lage: 'fram', rekt: figur.vrid[0] };
+    }
+
+    // Ritar en färdig ruta ur exporten: [x0, y0, x1, y1, färg, del]
+    function ritaRektar(rektar, y) {
+        const k = figur.skala, m = figur.mitt;
+        for (const [x0, y0, x1, y1, farg] of rektar) {
+            rekt(FIGUR_X + (x0 - m[0]) * k, y + (y0 - m[1]) * k,
+                 (x1 - x0) * k, (y1 - y0) * k, figur.farger[farg]);
+        }
     }
 
     // Jubel efter en klarad stapel: armarna hoppar upp en stund.
@@ -232,13 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
         return figur.jubel && fig.jubelTid * 1000 < figur.jubel.blinkMs;
     }
 
-    // Hur långt kroppen (med ögon och mage) har sjunkit när figuren andas.
-    function kroppSank() {
-        if (tillstand !== 'start') return 0;
-        const a = andning();
-        return a ? a.kropp : 0;
-    }
-
     // Svävande ben sackar efter lite nedåt precis efter ett flax.
     function benSack() {
         if (tillstand !== 'spelar') return 0;
@@ -247,28 +268,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return 0;
     }
 
-    // Blundar ögonen? Kisar vid krasch och av glädje när den jublar,
-    // blinkar i takt med andningen på startskärmen och annars ibland.
+    // Blundar ögonen? Kisar vid krasch och av glädje när den jublar, och
+    // blinkar ibland. (På startskärmen blinkar den i sina animationer.)
     function blundar() {
         if (tillstand === 'krasch') return true;
-        if (tillstand === 'start') {
-            const a = andning();
-            if (a) return a.blink;
-        }
         const skutt = rekordSkutt();
         if (skutt !== null && skutt <= figur.rekord.blinkUnder) return true;
         return jublar() || (tid % 3.2) < 0.12;
     }
 
     function ritaFigur(y) {
+        const ruta = figurRuta();
+        if (ruta) { ritaRektar(ruta.rekt, y); return; }
         const k = figur.skala, m = figur.mitt;
-        const lyft = armLyft(), sack = benSack(), blund = blundar(), sank = kroppSank();
+        const lyft = armLyft(), sack = benSack(), blund = blundar();
         y += figurHopp() * k;
         for (const [x0, y0, x1, y1, roll, farg] of figur.klossar) {
             let a = y0, b = y1;
             if (roll === 'arm') { a += lyft; b += lyft; }
             if (roll === 'ben') { a += sack; b += sack; }
-            if (roll === 'kropp' || roll === 'oga') { a += sank; b += sank; }
             if (roll === 'oga' && blund) {
                 // Ögat blir ett streck mitt i ögat
                 const mittY = (a + b) / 2;
@@ -625,6 +643,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function borja() {
         tillstand = 'spelar';
+        lageBorjade = tid;
         poang = 0;
         nyttRekord = false;
         staplar = [];
@@ -647,6 +666,8 @@ document.addEventListener('DOMContentLoaded', () => {
     function tillbakaTillStart() {
         if (laddaOmSen) { window.location.reload(); return; }
         tillstand = 'start';
+        lageBorjade = tid;
+        vriderTillbaka = true;
         staplar = [];
         fig.y = START_Y;
         fig.v = 0;
@@ -696,7 +717,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (tillstand === 'start') {
             rullat += bana.fart * dt;
-            // Svävar sakta och andas (andningen ritas i ritaFigur)
+            // Svävar sakta (andas och vinkar gör den i figurRuta)
             fig.y = START_Y + Math.sin(tid * 1.6) * 3;
             return;
         }
@@ -873,6 +894,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.spelet = {
             get tillstand() { return tillstand; },
             get poang() { return poang; },
+            get figurLage() { const r = figurRuta(); return r ? r.lage : 'sida'; },
             get version() { return version; },
             get fig() { return fig; },
             get staplar() { return staplar; },
