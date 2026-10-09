@@ -10,20 +10,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Kugghjulet (15×15 pixlar, åtta kuggar) och texten "Meny"
+    // Menyknappen: kugghjul (14×14 pixlar, åtta breda kuggar) och "Meny"
     menyknapp.innerHTML = (() => {
-        const bild = ['......###......', '...#..###..#...', '..###.###.###..',
-                      '.#############.', '..###########..', '...####.####...',
-                      '######...######', '#####.....#####', '######...######',
-                      '...####.####...', '..###########..', '.#############.',
-                      '..###.###.###..', '...#..###..#...', '......###......'];
+        const bild = ['.....####.....', '.....####.....', '.##.######.##.',
+                      '.############.', '..##########..', '..####..####..',
+                      '#####....#####', '#####....#####', '..####..####..',
+                      '..##########..', '.############.', '.##.######.##.',
+                      '.....####.....', '.....####.....'];
         let rutor = '';
         bild.forEach((rad, y) => {
             for (let x = 0; x < rad.length; x++) {
                 if (rad[x] === '#') rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
             }
         });
-        return '<svg width="30" height="30" viewBox="0 0 15 15" shape-rendering="crispEdges" fill="currentColor">' +
+        return '<svg width="28" height="28" viewBox="0 0 14 14" shape-rendering="crispEdges" fill="currentColor">' +
             rutor + '</svg>' + pixeltext('Meny', 3);
     })();
 
