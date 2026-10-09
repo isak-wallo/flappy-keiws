@@ -120,7 +120,9 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   (`fyllPaStaplar`); öppningen slumpas men flyttar sig högst `maxHopp`
   mellan två staplar. **Lätt i början:** öppningen är `oppningStart` (200)
   vid första stapeln och krymper med `oppningSteg` (5) per stapel ner till
-  `oppning` (150) (`oppningFor`, varje stapel minns sin `oppning`). Varje
+  `oppning` (150) (`oppningFor`, varje stapel minns sin `oppning`). Bredden är `stapelBredd` de första
+  `breddFran` staplarna, sedan slumpad ur `stapelBredder` (`stapelBreddFor`,
+  sparas i stapelns `b`). Varje
   stapel får en slumpad grön nyans ur `farger.staplar` (`stapelFarg`, aldrig
   samma två i rad). Kollision = rektanglar (`stapelDelar`, `figurTraff`).
   Taket är skärmens överkant.
