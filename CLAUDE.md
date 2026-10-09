@@ -60,7 +60,7 @@ Bara fyrkantiga klossar som flyttas — ingen rotation, inget som sträcks ut.
 keIWs: alla klossar 36 px, kroppen 160×160, 8 px mellanrum överallt
 (kropp–arm, kropp–ben, mellan ögonen från sidan). Lägen i jämna px, helst
 steg om 12. Bortre arm och ben ritas mörkare bakom kroppen, magklossen sitter
-rakt under främre ögat, armarna hamnar aldrig över kroppen.
+rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamnar aldrig över kroppen.
 
 ## Arkitektur i `app.js`
 

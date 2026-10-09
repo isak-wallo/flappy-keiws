@@ -44,7 +44,7 @@ const FIGURER = {
             [88, 168, 124, 204, 'ben', 'kropp'],    // närmre ben
             [72, 25, 108, 61, 'oga', 'oga'],        // ögonen, framme vid kanten
             [116, 25, 152, 61, 'oga', 'oga'],
-            [116, 99, 152, 135, 'kropp', 'mage']    // magklossen under främre ögat
+            [72, 99, 108, 135, 'kropp', 'mage']     // magklossen under vänster (inre) öga
         ],
         blink: 8,
         // Andas: [kroppen ner, armarna ner, ms] per ruta. Kroppen med ögon
