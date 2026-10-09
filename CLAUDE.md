@@ -55,6 +55,10 @@ där.
 - Versionen (t.ex. "v9") står litet i startrutans hörn. Den läses från
   service workerns cachenamn (`caches.keys()`), så den behöver bara
   bumpas i `sw.js`.
+- **Dela** i kraschrutan (`delaResultat`): telefonens dela-meny (Web Share,
+  text med poäng, medalj och länk), annars kopieras texten. Knappen är
+  tryckbar (`.dela`), resten av rutan släpper igenom trycket; delningen
+  sker vid `click` eftersom dela-menyn kräver ett helt tryck.
 - Medaljer i kraschrutan efter `bana.medaljer` (brons 10, silver 25,
   guld 50), ritade som små SVG-pixelbilder (`MEDALJ_BILD`).
 - Poäng i egna 3×5-pixelsiffror på canvasen (siffran studsar till vid

@@ -48,11 +48,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 
 - [ ] **Dagens bana**: slumpen styrs av datumet, så alla får samma staplar
   samma dag och kan jämföra poäng utan server. Eget rekord för dagens bana.
-- [ ] **Dela resultat** med telefonens dela-meny (Web Share API), med en bild
-  ur spelet.
-
-## 6. Senare
-
 - [ ] **Ljud**: korta pixelpip som genereras i koden (Web Audio, inga
   ljudfiler) för flax, poäng och krasch. Med av/på-knapp, av från början?
 - [ ] **Figurval**, om fler figurer dyker upp.
@@ -95,6 +90,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Dela resultat i kraschrutan (dela-menyn, annars kopieras texten).
+  Senare kanske med en bild.
 - [x] Nytt rekord firas: dubbelt jubel i flykten, poängen blinkar i guld,
   och keIWs jublar framifrån med konfetti på startskärmen.
 - [x] Meny (kugghjulet på startskärmen): tid på dygnet (auto eller fast)

@@ -800,10 +800,29 @@ document.addEventListener('DOMContentLoaded', () => {
             (medalj ? '<p class="liten">' + medaljSvg(medalj) + pixeltext(MEDALJ_NAMN[medalj], TEXT) + '</p>' : '') +
             (nyttRekord ? '<p>' + pixeltext('Nytt rekord!', TEXT) + '</p>'
                         : '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>') +
+            '<div class="val dela">' + pixeltext('Dela', TEXT) + '</div>' +
             '<p class="liten">' + pixeltext('Tryck för att spela igen', TEXT) + '</p>';
         ruta.classList.remove('dold');
         placeraRuta();
         rutaVisadVid = performance.now();
+    }
+
+    // Dela resultatet med telefonens dela-meny, annars kopieras texten.
+    const MEDALJ_TECKEN = { brons: '🥉', silver: '🥈', guld: '🥇' };
+    function delaResultat() {
+        const medalj = medaljFor(poang);
+        const text = 'Jag fick ' + poang + ' poäng i Flappy keIWs!' +
+            (medalj ? ' ' + MEDALJ_TECKEN[medalj] + ' ' + MEDALJ_NAMN[medalj] : '') +
+            (nyttRekord ? ' Nytt rekord!' : '');
+        const url = location.origin + location.pathname;
+        if (navigator.share) {
+            navigator.share({ title: 'Flappy keIWs', text, url }).catch(() => {});
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(text + ' ' + url).then(() => {
+                const knapp = ruta.querySelector('.dela');
+                if (knapp) knapp.innerHTML = pixeltext('Kopierat!', TEXT);
+            }).catch(() => {});
+        }
     }
 
     function gomRuta() {
@@ -1084,12 +1103,18 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         if (e.pointerType === 'touch') forsokHelskarm();
         if (menyOppen) { tryckIMeny(e.target); return; }
+        // Dela-knappen hanteras vid click (dela-menyn kräver ett helt tryck)
+        if (e.target.closest && e.target.closest('.dela')) return;
         if (e.target.closest && e.target.closest('#menyknapp')) {
             if (tillstand === 'start' && vaknarVid === null) visaMeny();
             return;
         }
         tryck();
     }, { passive: false });
+
+    ruta.addEventListener('click', e => {
+        if (e.target.closest('.dela') && tillstand === 'krasch') delaResultat();
+    });
 
     window.addEventListener('keydown', e => {
         if (e.repeat) return;

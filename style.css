@@ -138,6 +138,14 @@ html, body {
     cursor: pointer;
 }
 
+/* Dela-knappen i kraschrutan går att trycka på (resten av rutan släpper
+   igenom trycket till spelet) */
+#ruta .val.dela {
+    pointer-events: auto;
+    margin: 10px auto;
+    width: 60%;
+}
+
 #ruta .val.varning {
     border-color: #c0603c;
     color: #c0603c;

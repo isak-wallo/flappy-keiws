@@ -11,7 +11,7 @@ finns window.spelet att läsa) och kontrollerar att:
   - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
   - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa (smäll, landar, blir yr),
-    kraschrutan visas och
+    kraschrutan visas (med dela-knapp) och
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
@@ -200,6 +200,14 @@ def main():
             kolla(all(l in lagen for l in ('krock', 'landar', 'yr')),
                   'figuren krockar, studsar mot marken och blir yr')
             kolla('Poäng' in text, 'kraschrutan visar poängen')
+            sida.evaluate("navigator.share = d => { window.delat = d; return Promise.resolve(); }")
+            time.sleep(0.5)
+            sida.click('#ruta .dela')
+            time.sleep(0.2)
+            delat = sida.evaluate('window.delat || null')
+            kolla(delat is not None and str(sida.evaluate('spelet.poang')) in delat['text']
+                  and sida.evaluate('spelet.tillstand') == 'krasch',
+                  'dela-knappen delar resultatet, spelet startar inte om')
             if poang >= 10:
                 kolla(sida.is_visible('#ruta svg.medalj')
                       and any(m in text for m in ('Brons', 'Silver', 'Guld')),
