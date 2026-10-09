@@ -71,7 +71,7 @@ där.
 |-----|------|
 | `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figur_data.js`, `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
 | `typsnitt.js` | `TYPSNITT`: eget pixeltypsnitt (versaler 7 rutor, gemener 5, svansar 2 under, åäö) och `pixeltext(text, px)`, som ger HTML med ett SVG per ord plus osynlig riktig text. Saknas ett tecken ritas `?` — lägg till det i `tecken`. |
-| `figur_data.js` | **Genererad** av `verktyg/las_figur.py` från figurens export (keiws.json): `FIGUR_DATA` med färger, `vrid[0..3]` (framifrån → sidan åt höger), blink, animationerna `idle`, `vinka`, `jubel`, `somnar`, `sover`, `vaknar`, krocken `krock`, `faller`, `landar`, `yr` (ur exportens `*_hoger`), och Ond. Ändra inte för hand. |
+| `figur_data.js` | **Genererad** av `verktyg/las_figur.py` från figurens export (keiws.json): `FIGUR_DATA` med färger, `vrid[0..3]` (framifrån → sidan åt höger), blink, animationerna `idle`, `vinka`, `jubel`, `somnar`, `sover`, `vaknar`, `rekordjubel` (exportens `jubel_fram`), krocken `krock`, `faller`, `landar`, `yr` (ur exportens `*_hoger`), och Ond. Ändra inte för hand. |
 | `figurer.js` | `FIGURER`: bygger figurerna ur `FIGUR_DATA` (`figurUrExport`): färdiga lägen/animationer, och sidovyn som `klossar` med roller `kropp`/`arm`/`oga`/`ben` (`DEL_ROLL`). Plus spelets egna värden: `skala`, `blink`, `start` (ordningen på startskärmens animationer), `vridMs`, `somnaEfter`, `jubel`, `mitt`, träffyta `traff`. |
 | `verktyg/las_figur.py` | Läser figurens export och skriver om `figur_data.js`: `python verktyg/las_figur.py SÖKVÄG/keiws.json`. Kör testerna och bumpa `VERSION` efteråt. |
 | `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler), medaljer och färger. `natt` tar över allt från `angen` (`...BANOR.angen`) och byter färger. `angen.dygn` + `angen.paletter` (dag, skymning, natt, gryning) styr färgerna efter klockan. Stapelns färg är ett nummer i `farger.staplar`, så den följer med. |
@@ -114,7 +114,8 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   tiden) och sedan startar spelet av sig självt. `?somna=2` i adressen
   somnar efter 2 s. När man trycker igång vrider den sig åt
   höger i tre steg (`vridMs`), och efter en runda vrider den sig tillbaka
-  framåt (`vriderTillbaka`). Medan den flyger ritas sidovyn med klossar och
+  framåt (`vriderTillbaka`), och efter ett nytt rekord jublar den
+  framifrån med konfetti (`jublaPaStart`, animationen `rekordjubel`). Medan den flyger ritas sidovyn med klossar och
   roller. När en stapel klaras jublar den med
   armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Slår man sitt
   rekord gör den ett glädjeskutt ur exporten (animationen `jubel`, i

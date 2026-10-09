@@ -12,6 +12,8 @@
 //    `start`), somnar efter `somnaEfter` s (`somnar`, sedan `sover` i
 //    loop), vaknar och ruskar på sig vid ett tryck (`vaknar`) och vrider
 //    sig åt höger när den börjar flyga (`vrid`, ett steg per `vridMs`).
+//    Efter ett nytt rekord jublar den framifrån med konfetti (`rekordjubel`)
+//    när den kommer tillbaka till startskärmen.
 //    Slår man sitt rekord gör den ett glädjeskutt åt höger (`jubel`). Vid
 //    en krock: smällen (`krock`), fladdrar medan den faller (`faller`),
 //    studsar mot marken (`landar`) och blir yr med stjärnor (`yr`).
@@ -44,7 +46,7 @@ function figurUrExport(d) {
         farger: d.farger,
         vrid: d.vrid,
         animationer: { idle: d.idle, vinka: d.vinka, jubel: d.jubel, somnar: d.somnar, sover: d.sover, vaknar: d.vaknar,
-            krock: d.krock, faller: d.faller, landar: d.landar, yr: d.yr },
+            rekordjubel: d.rekordjubel, krock: d.krock, faller: d.faller, landar: d.landar, yr: d.yr },
         klossar: d.vrid[3].map(([x0, y0, x1, y1, farg, del]) =>
             [x0, y0, x1, y1, DEL_ROLL[del], farg])
     };

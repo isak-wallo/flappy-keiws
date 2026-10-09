@@ -95,6 +95,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Nytt rekord firas: dubbelt jubel i flykten, poängen blinkar i guld,
+  och keIWs jublar framifrån med konfetti på startskärmen.
 - [x] Meny (kugghjulet på startskärmen): tid på dygnet (auto eller fast)
   och nollställ rekord.
 - [x] Krock ur figurens export: smäll med stänk, fladdrar i fallet,

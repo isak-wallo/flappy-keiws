@@ -209,6 +209,15 @@ def main():
             sida.keyboard.press('Space')
             time.sleep(0.2)
             kolla(sida.evaluate('spelet.tillstand') == 'start', 'tryck efter krasch går tillbaka till start')
+            if poang >= 3:
+                try:
+                    sida.wait_for_function("spelet.figurLage === 'rekordjubel'", timeout=1500)
+                    jublar = True
+                except Exception:
+                    jublar = False
+                kolla(jublar, 'efter nytt rekord jublar figuren framifrån på startskärmen')
+                time.sleep(0.8)
+                bild(sida, '3a-rekordjubel.png')
 
         # Version: andra laddningen har en cache, då står versionen i startrutan
         sida.reload()

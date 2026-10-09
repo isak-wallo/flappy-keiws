@@ -73,6 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let lageBorjade = 0;             // tid när start eller spelar började
     let vriderTillbaka = false;      // start efter en runda: vrid tillbaka framåt
     let vaknarVid = null;            // tid när figuren väcktes (ruskar igång sig)
+    let jublaPaStart = false;        // tillbaka efter nytt rekord: jubla först
     let tid = 0;                     // s sedan sidan startade (för gungning m.m.)
     let rullat = 0;                  // hur långt banan rullat (för marken)
     let staplar = [];                // { x, mittY, passerad }
@@ -292,6 +293,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const i = 2 - Math.floor(t / steg);       // vrid[2], vrid[1], sen framifrån
             if (i >= 1) return { lage: 'vrid', rekt: figur.vrid[i] };
             t -= 2 * steg;
+        }
+        if (jublaPaStart && figur.animationer.rekordjubel) {
+            const ms = t * 1000, langd = animMs('rekordjubel');
+            if (ms < langd) return { lage: 'rekordjubel', rekt: rutaI('rekordjubel', ms, false) };
+            t -= langd / 1000;
         }
         if (!START_MS) return { lage: 'fram', rekt: figur.vrid[0] };
         const sov = t * 1000 - SOMNAR_MS;
@@ -808,6 +814,7 @@ document.addEventListener('DOMContentLoaded', () => {
         menyknapp.classList.add('dold');
         lageBorjade = tid;
         vaknarVid = null;
+        jublaPaStart = false;
         poang = 0;
         nyttRekord = false;
         staplar = [];
@@ -833,6 +840,7 @@ document.addEventListener('DOMContentLoaded', () => {
         tillstand = 'start';
         lageBorjade = tid;
         vriderTillbaka = true;
+        jublaPaStart = nyttRekord;
         staplar = [];
         fig.y = START_Y;
         fig.v = 0;
@@ -1016,7 +1024,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // rader texten än blir.
     const FIGUR_TOPP = (() => {
         let topp = 0;
-        const pa_start = (figur.start || []).concat(KAN_SOVA ? ['somnar', 'sover', 'vaknar'] : []);
+        const pa_start = (figur.start || []).concat(KAN_SOVA ? ['somnar', 'sover', 'vaknar'] : [])
+            .concat(figur.animationer.rekordjubel ? ['rekordjubel'] : []);
         for (const namn of pa_start) {
             for (const r of figur.animationer[namn]) {
                 for (const kloss of r.rekt) topp = Math.min(topp, kloss[1]);
