@@ -18,11 +18,6 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
   steg à 90 ms. Ögon, ben och bortre arm flyttas jämnt mellan lägena
   (avrundat till 2 px), bortre arm och ben blir mörka efter halva vridningen.
   Kräver figurens framvy och mellanlägen i `figurer.js`.
-- [ ] **Större jubel vid nytt rekord**: ett litet skutt (dy −16, −28, −16,
-  0, −12, 0 à 80–90 ms), blinkar högst upp. Bara visuellt, träffytan ska
-  inte flytta sig. (Vanligt jubel per stapel finns redan.)
-- [ ] **Tydligare krasch**: blundar redan; kanske armarna rakt upp och en
-  liten studs mot marken.
 
 ## 2. Spelkänsla
 
@@ -30,7 +25,6 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
   första trycket (finns delvis: startläget).
 - [ ] **Pixeltypsnitt** i textrutan, så att texten matchar siffrorna (egna
   bokstäver i 3×5 eller 5×7, ritade på canvas).
-- [ ] **Medaljer** i kraschrutan: brons 10, silver 25, guld 50.
 - [ ] Justera fysiken efter mer spelande (`banor.js`: tyngd, flax, fart,
   öppning).
 
@@ -99,3 +93,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Paus när man byter app eller flik mitt i en runda.
 - [x] Poängsiffran studsar när man klarar en stapel.
 - [x] Versionsnummer i startrutans hörn.
+- [x] Medaljer i kraschrutan: brons 10, silver 25, guld 50.
+- [x] Tydligare krasch: armarna rakt upp och en liten studs mot marken.
+- [x] Skutt med armarna upp när man slår sitt rekord.

@@ -28,6 +28,9 @@ const BANOR = {
 
         markHojd: 96,         // marken längst ner
 
+        // Medaljer i kraschrutan: [minst så många poäng, medalj]
+        medaljer: [[10, 'brons'], [25, 'silver'], [50, 'guld']],
+
         // --- Färger: lugna, lite dova pixelfärger ---
         farger: {
             himmelTopp: '#a9d3e3',

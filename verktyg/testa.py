@@ -168,6 +168,10 @@ def main():
         if kraschad:
             text = sida.inner_text('#ruta')
             kolla('Poäng' in text, 'kraschrutan visar poängen')
+            if poang >= 10:
+                kolla(sida.is_visible('#ruta svg.medalj')
+                      and any(m in text for m in ('Brons', 'Silver', 'Guld')),
+                      'kraschrutan visar en medalj (%d poäng)' % sida.evaluate('spelet.poang'))
             bild(sida, '3-krasch.png')
             time.sleep(0.6)                                  # spärren mot för snabb omstart
             sida.keyboard.press('Space')

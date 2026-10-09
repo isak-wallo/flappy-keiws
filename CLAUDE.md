@@ -39,6 +39,8 @@ där.
 - Versionen (t.ex. "v9") står litet i startrutans hörn. Den läses från
   service workerns cachenamn (`caches.keys()`), så den behöver bara
   bumpas i `sw.js`.
+- Medaljer i kraschrutan efter `bana.medaljer` (brons 10, silver 25,
+  guld 50), ritade som små SVG-pixelbilder (`MEDALJ_BILD`).
 - Poäng i egna 3×5-pixelsiffror på canvasen (siffran studsar till vid
   varje poäng, `STUDS`/`poangStuds`); bästa resultatet i
   `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM.
@@ -57,7 +59,7 @@ där.
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
-| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
+| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, medalj, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
 | `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
 
 ## Stilregler för figurerna
@@ -85,8 +87,12 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   8/4 px nedåt efter ett flax (`benSack`). Ögonen blinkar och blundar vid
   krasch (`blundar`). På startskärmen andas den (`andning`, `kroppSank`,
   rutorna i `figur.andning`), och när en stapel klaras jublar den med
-  armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Allt det är bara
-  ritning: träffytan påverkas inte.
+  armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Slår man sitt
+  rekord gör den ett skutt (`rekordSkutt`, `figur.rekord`), och vid krasch
+  sträcker den upp armarna och studsar mot marken (`figur.krasch`). Skutt
+  och studs lyfter hela figuren (`figurHopp`). Allt det är bara ritning:
+  träffytan påverkas inte. Animationer är listor med `[värde, ms]`
+  (`stegVid`).
 - **Staplar** (raka, enfärgade — inga rör med kapsyl) fylls på till höger
   (`fyllPaStaplar`); öppningen slumpas men flyttar sig högst `maxHopp`
   mellan två staplar. **Lätt i början:** öppningen är `oppningStart` (200)

@@ -49,7 +49,8 @@ document.addEventListener('DOMContentLoaded', () => {
         y: START_Y,
         v: 0,
         flaxTid: 1,                  // s sedan senaste flaxet
-        jubelTid: 99                 // s sedan senaste klarade stapeln
+        jubelTid: 99,                // s sedan senaste klarade stapeln
+        rekordTid: 99                // s sedan rekordet slogs
     };
 
     // ------------------------------------------------------------------
@@ -101,15 +102,43 @@ document.addEventListener('DOMContentLoaded', () => {
     const FIGUR_UNDER = (figur.traff[3] - figur.mitt[1]) * figur.skala;
     const FIGUR_OVER = (figur.mitt[1] - figur.traff[1]) * figur.skala;
 
+    // Värdet i en animation med steg [värde, ms] efter `s` sekunder, eller
+    // null när den är slut.
+    function stegVid(steg, s) {
+        let t = s * 1000;
+        for (const [varde, ms] of steg) {
+            if (t < ms) return varde;
+            t -= ms;
+        }
+        return null;
+    }
+
+    // Skutt vid nytt rekord (bara medan man spelar), annars null.
+    function rekordSkutt() {
+        if (tillstand !== 'spelar' || !figur.rekord) return null;
+        return stegVid(figur.rekord.skutt, fig.rekordTid);
+    }
+
+    // Hela figuren lyfts så här mycket (figurpixlar): skutt vid rekord och
+    // studs när den slår i marken. Bara ritning, träffytan står kvar.
+    function figurHopp() {
+        if (tillstand === 'spelar') return rekordSkutt() || 0;
+        if (tillstand === 'krasch' && landadTid !== null && figur.krasch) {
+            return stegVid(figur.krasch.studs, landadTid) || 0;
+        }
+        return 0;
+    }
+
     // Armarnas läge (figurpixlar, negativt = uppåt). Armarna flyttas i hela
     // steg om 12 px, som i animationerna.
     function armLyft() {
-        if (tillstand === 'krasch') return -12;
+        if (tillstand === 'krasch') return figur.krasch ? figur.krasch.armar : -12;
         if (tillstand === 'start') { const a = andning(); return a ? a.arm : 0; }
         let lyft = 0;
         if (fig.flaxTid < 0.08) lyft = -24;
         else if (fig.flaxTid < 0.18) lyft = -12;
         else if (fig.v > 380) lyft = -12;    // faller fort: armarna upp
+        if (rekordSkutt() !== null) lyft = Math.min(lyft, figur.rekord.armar);
         return Math.min(lyft, jubelLyft());  // det som är högst upp vinner
     }
 
@@ -168,12 +197,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const a = andning();
             if (a) return a.blink;
         }
+        const skutt = rekordSkutt();
+        if (skutt !== null && skutt <= figur.rekord.blinkUnder) return true;
         return jublar() || (tid % 3.2) < 0.12;
     }
 
     function ritaFigur(y) {
         const k = figur.skala, m = figur.mitt;
         const lyft = armLyft(), sack = benSack(), blund = blundar(), sank = kroppSank();
+        y += figurHopp() * k;
         for (const [x0, y0, x1, y1, roll, farg] of figur.klossar) {
             let a = y0, b = y1;
             if (roll === 'arm') { a += lyft; b += lyft; }
@@ -381,10 +413,54 @@ document.addEventListener('DOMContentLoaded', () => {
         rutaVisadVid = performance.now();
     }
 
+    // Medaljerna ritas som små pixelbilder (SVG med raka kanter).
+    // m = metallen, l = blänk, d = skugga, b = bandet.
+    const MEDALJ_BILD = [
+        '..bb.bb..',
+        '..bb.bb..',
+        '...bbb...',
+        '..mmmmm..',
+        '.mllmmmm.',
+        '.mlmmmmd.',
+        '.mmmmmmd.',
+        '.mmmmmdd.',
+        '..mdddd..'
+    ];
+    const MEDALJ_FARGER = {
+        brons: { m: '#c48a5c', l: '#e2b48c', d: '#9a6440' },
+        silver: { m: '#bfcbd1', l: '#eef3f5', d: '#8fa0a8' },
+        guld: { m: '#e3bd4f', l: '#f7e39a', d: '#b38c2c' }
+    };
+    const MEDALJ_NAMN = { brons: 'Brons', silver: 'Silver', guld: 'Guld' };
+
+    // Bästa medaljen för n poäng, eller null.
+    function medaljFor(n) {
+        let basta = null;
+        for (const [min, namn] of bana.medaljer || []) {
+            if (n >= min) basta = namn;
+        }
+        return basta;
+    }
+
+    function medaljSvg(namn) {
+        const f = Object.assign({ b: '#5f8292' }, MEDALJ_FARGER[namn]);
+        let rutor = '';
+        MEDALJ_BILD.forEach((rad, y) => {
+            for (let x = 0; x < rad.length; x++) {
+                if (rad[x] !== '.') {
+                    rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1" fill="' + f[rad[x]] + '"/>';
+                }
+            }
+        });
+        return '<svg class="medalj" viewBox="0 0 9 9" shape-rendering="crispEdges">' + rutor + '</svg>';
+    }
+
     function visaKraschruta() {
+        const medalj = medaljFor(poang);
         ruta.innerHTML =
             '<p class="liten">Poäng</p>' +
             '<h1>' + poang + '</h1>' +
+            (medalj ? '<p class="liten">' + medaljSvg(medalj) + MEDALJ_NAMN[medalj] + '</p>' : '') +
             (nyttRekord ? '<p>Nytt rekord!</p>' : '<p class="liten">Bäst: ' + bast + '</p>') +
             '<p class="liten">Tryck för att spela igen</p>';
         ruta.classList.remove('dold');
@@ -468,6 +544,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fig.flaxTid += dt;
         poangTid += dt;
         fig.jubelTid += dt;
+        fig.rekordTid += dt;
 
         if (tillstand === 'start') {
             rullat += bana.fart * dt;
@@ -497,6 +574,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.passerad = true;
                     poang++;
                     fig.jubelTid = 0;
+                    if (bast > 0 && poang === bast + 1) fig.rekordTid = 0;   // slog rekordet
                     poangTid = 0;
                 }
                 for (const del of stapelDelar(p)) {
