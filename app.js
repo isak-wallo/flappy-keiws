@@ -12,24 +12,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Val (blir inställningar längre fram) ---
     const figur = FIGURER.keiws;
 
-    // Banan följer klockan: natt från NATT_FRAN till NATT_TILL, annars ängen.
-    // ?bana=natt (eller angen) i adressen väljer själv. Byts bara på
-    // startskärmen (valjBana), aldrig mitt i en runda.
-    const NATT_FRAN = 20, NATT_TILL = 8;
+    // ?bana=natt (eller angen) i adressen väljer bana, annars ängen.
     const BANA_I_ADRESS = (/[?&]bana=(\w+)/.exec(location.search) || [])[1];
-    function banaNu() {
-        if (BANOR[BANA_I_ADRESS]) return BANOR[BANA_I_ADRESS];
-        const h = new Date().getHours();
-        return (h >= NATT_FRAN || h < NATT_TILL) ? BANOR.natt : BANOR.angen;
+    const bana = BANOR[BANA_I_ADRESS] || BANOR.angen;
+
+    // Färgerna följer klockan om banan har ett dygn (skymning, natt,
+    // gryning, dag), se `dygn` i banor.js. ?klocka=19.5 i adressen låtsas
+    // att klockan är 19.30, för att se hur det ser ut.
+    const KLOCKA_I_ADRESS = (/[?&]klocka=([\d.]+)/.exec(location.search) || [])[1];
+    function klockslag() {
+        if (KLOCKA_I_ADRESS !== undefined) return parseFloat(KLOCKA_I_ADRESS) % 24;
+        const d = new Date();
+        return d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600;
     }
-    let bana = banaNu();
-    let F = bana.farger;
+    let F = fargerNu();               // färgerna just nu (räknas om varje sekund)
 
     // --- Världen ---
     const VARLD_B = 360;             // världens bredd (enheter)
     const VARLD_H = 640;             // världens höjd
     const MAX_B = 400;               // högst så här bred vy (dator/platta)
-    let MARK_Y = VARLD_H - bana.markHojd;
+    const MARK_Y = VARLD_H - bana.markHojd;
     const FIGUR_X = 100;             // figuren står still i x, banan rullar
     const START_Y = 280;             // där figuren svävar innan man börjar
     const STEG = 1 / 120;            // fast tidssteg för fysiken (s)
@@ -83,7 +85,39 @@ document.addEventListener('DOMContentLoaded', () => {
     function blanda(a, b, t) {
         const pa = parseInt(a.slice(1), 16), pb = parseInt(b.slice(1), 16);
         const kanal = sh => Math.round(((pa >> sh) & 255) * (1 - t) + ((pb >> sh) & 255) * t);
-        return 'rgb(' + kanal(16) + ',' + kanal(8) + ',' + kanal(0) + ')';
+        return '#' + ((kanal(16) << 16) | (kanal(8) << 8) | kanal(0)).toString(16).padStart(6, '0');
+    }
+
+    // Blanda två paletter: färger (även listor av färger) och tal.
+    function blandaPalett(a, b, t) {
+        if (t <= 0) return a;
+        if (t >= 1) return b;
+        const ut = {};
+        for (const k in a) {
+            const x = a[k], y = b[k];
+            if (y === undefined) ut[k] = x;
+            else if (Array.isArray(x)) ut[k] = x.map((f, i) => blanda(f, y[i % y.length], t));
+            else if (typeof x === 'number') ut[k] = x + (y - x) * t;
+            else ut[k] = blanda(x, y, t);
+        }
+        return ut;
+    }
+
+    // Färgerna just nu: banans egna, eller dygnets efter klockan.
+    function fargerNu() {
+        const D = bana.dygn;
+        if (!D) return bana.farger;
+        let h = klockslag();
+        if (h < D[0][0]) h += 24;
+        for (let i = 0; i < D.length; i++) {
+            const [ta, a] = D[i];
+            const [tb0, b] = D[(i + 1) % D.length];
+            const tb = i === D.length - 1 ? tb0 + 24 : tb0;
+            if (h >= ta && h < tb) {
+                return blandaPalett(bana.paletter[a], bana.paletter[b], (h - ta) / (tb - ta));
+            }
+        }
+        return bana.farger;
     }
 
     // Ritar en rektangel i världskoordinater, avrundad till hela
@@ -243,11 +277,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // En grön nyans ur banans lista, aldrig samma som förra stapeln.
+    // Stapelns färg är ett nummer i F.staplar, så att den följer med när
+    // färgerna glider över i skymningen.
     function stapelFarg(forra) {
-        const lista = F.staplar;
+        const n = F.staplar.length;
         let f;
-        do { f = lista[Math.floor(Math.random() * lista.length)]; }
-        while (lista.length > 1 && forra && f === forra.farg);
+        do { f = Math.floor(Math.random() * n); }
+        while (n > 1 && forra && f === forra.farg);
         return f;
     }
 
@@ -296,8 +332,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Raka, enfärgade staplar
     function ritaStapel(p) {
         const b = bana.stapelBredd, halv = p.oppning / 2;
-        rekt(p.x, vyY0, b, p.mittY - halv - vyY0, p.farg);
-        rekt(p.x, p.mittY + halv, b, MARK_Y - (p.mittY + halv), p.farg);
+        const farg = F.staplar[p.farg % F.staplar.length];
+        rekt(p.x, vyY0, b, p.mittY - halv - vyY0, farg);
+        rekt(p.x, p.mittY + halv, b, MARK_Y - (p.mittY + halv), farg);
     }
 
     // ------------------------------------------------------------------
@@ -313,22 +350,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Stjärnor (bara på banor med `stjarnor`): fasta platser på himlen som
-    // glider väldigt sakta, några blinkar lite. Platserna räknas fram en
+    // Stjärnor: fasta platser på himlen som glider väldigt sakta, några
+    // blinkar lite. Hur många som syns styrs av F.stjarnLjus (0–1). Platserna räknas fram en
     // gång med en enkel slump med frö, så de ligger likadant varje gång.
+    const ANTAL_STJARNOR = 36;
     const STJARNOR = [];
     (function () {
         let fro = 7;
         const slump = () => (fro = (fro * 16807) % 2147483647) / 2147483647;
-        for (let i = 0; i < 80; i++) {
+        for (let i = 0; i < ANTAL_STJARNOR; i++) {
             STJARNOR.push({ x: slump() * 460, y: -120 + slump() * 520, stor: slump() < 0.25, fas: slump() * 6.3 });
         }
     })();
 
     function ritaStjarnor() {
-        if (!bana.stjarnor) return;
+        const antal = Math.round(ANTAL_STJARNOR * (F.stjarnLjus || 0));
         const varv = vyB + 100;
-        for (let i = 0; i < bana.stjarnor && i < STJARNOR.length; i++) {
+        for (let i = 0; i < antal; i++) {
             const st = STJARNOR[i];
             if (st.y < vyY0 || st.y > MARK_Y - 90) continue;
             let x = (st.x - rullat * 0.02) % varv;
@@ -340,8 +378,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Månen: en pixlig rund skiva med några kratrar ('o'), högt upp till
-    // höger. Den är så långt bort att den står still.
+    // Månen och solen: pixliga runda skivor (8×8). Månen har kratrar ('o')
+    // och står till höger, solen har en kant ('k') och står till vänster.
+    // De är så långt bort att de inte rullar med banan, men går upp och
+    // ner med klockan (F.maneHojd, F.solHojd). Kullarna och marken ritas
+    // efter, så de går ner bakom dem.
     const MANE = [
         '..####..',
         '.######.',
@@ -353,16 +394,38 @@ document.addEventListener('DOMContentLoaded', () => {
         '..####..'
     ];
 
-    function ritaMane() {
-        if (!bana.mane) return;
+    const SOL = [
+        '..kkkk..',
+        '.k####k.',
+        'k######k',
+        'k######k',
+        'k######k',
+        'k######k',
+        '.k####k.',
+        '..kkkk..'
+    ];
+
+    // Ritar en himlakropp med vänsterkanten i x0 och höjden hojd (0 =
+    // nere vid horisonten, 1 = högt upp).
+    function ritaHimlakropp(bild, x0, hojd, farger) {
+        if (hojd === undefined) return;
         const k = 6;
-        const x0 = vyX0 + vyB - 90, y0 = Math.max(vyY0, 0) + 70;
-        MANE.forEach((rad, y) => {
+        const topp = Math.max(vyY0, 0) + 70, horisont = MARK_Y - 40;
+        const y0 = horisont - hojd * (horisont - topp);
+        if (y0 > MARK_Y || y0 + 8 * k < vyY0) return;
+        bild.forEach((rad, y) => {
             for (let x = 0; x < rad.length; x++) {
-                if (rad[x] === '.') continue;
-                rekt(x0 + x * k, y0 + y * k, k, k, rad[x] === 'o' ? F.maneSkugga : F.mane);
+                if (rad[x] !== '.') rekt(x0 + x * k, y0 + y * k, k, k, farger[rad[x]]);
             }
         });
+    }
+
+    function ritaMane() {
+        ritaHimlakropp(MANE, vyX0 + vyB - 90, F.maneHojd, { '#': F.mane, o: F.maneSkugga });
+    }
+
+    function ritaSol() {
+        ritaHimlakropp(SOL, vyX0 + 40, F.solHojd, { '#': F.sol, k: F.solKant });
     }
 
     // Molnen ligger utspridda och glider sakta förbi (en tiondel av farten).
@@ -568,18 +631,8 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Byt bana om klockan säger det (bara på startskärmen)
-    function valjBana() {
-        const ny = banaNu();
-        if (ny === bana) return;
-        bana = ny;
-        F = bana.farger;
-        MARK_Y = VARLD_H - bana.markHojd;
-    }
-
     function tillbakaTillStart() {
         if (laddaOmSen) { window.location.reload(); return; }
-        valjBana();
         tillstand = 'start';
         staplar = [];
         fig.y = START_Y;
@@ -617,6 +670,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function uppdatera(dt) {
         tid += dt;
+        if (Math.floor(tid) !== Math.floor(tid - dt)) F = fargerNu();   // varje sekund
         if (tillstand === 'paus') return;   // allt står still
         fig.flaxTid += dt;
         poangTid += dt;
@@ -624,7 +678,6 @@ document.addEventListener('DOMContentLoaded', () => {
         fig.rekordTid += dt;
 
         if (tillstand === 'start') {
-            if (Math.floor(tid / 30) !== Math.floor((tid - dt) / 30)) valjBana();   // var 30:e s
             rullat += bana.fart * dt;
             // Svävar sakta och andas (andningen ritas i ritaFigur)
             fig.y = START_Y + Math.sin(tid * 1.6) * 3;
@@ -685,6 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function rita() {
         ritaHimmel();
         ritaStjarnor();
+        ritaSol();
         ritaMane();
         ritaMoln();
         ritaKullar(0.15, 70, 16, 0.012, F.kullar);
@@ -805,9 +859,8 @@ document.addEventListener('DOMContentLoaded', () => {
             get version() { return version; },
             get fig() { return fig; },
             get staplar() { return staplar; },
-            get bana() { return bana; },
-            get MARK_Y() { return MARK_Y; },
-            FIGUR_X
+            get farger() { return F; },
+            bana, FIGUR_X, MARK_Y
         };
     }
 

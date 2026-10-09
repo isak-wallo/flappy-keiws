@@ -34,8 +34,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [ ] **Höst**: staplar i rost, senap och brunt, löv som blåser förbi.
 - [ ] **Banval** i startrutan, **rekord per bana** (natt och dag delar
   rekord i dag, de har samma fysik och hinder).
-- [ ] Skymning och gryning: en övergång runt 20 och 08 i stället för ett
-  tvärt byte.
 - [ ] **Upplåsning**: nästa bana öppnas när man klarar t.ex. 15 staplar på
   den förra.
 - [ ] Svårighet som ökar lite under banan (fart eller avstånd), per bana.
@@ -97,4 +95,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Tydligare krasch: armarna rakt upp och en liten studs mot marken.
 - [x] Skutt med armarna upp när man slår sitt rekord.
 - [x] Eget pixeltypsnitt (5×7, gemener och åäö) i textrutorna.
-- [x] Nattbana med stjärnor och måne, som väljs av klockan (20–08).
+- [x] Nattbana med stjärnor och måne.
+- [x] Dygnet följer klockan: skymning 18–21 (solen går ner, månen upp),
+  natt 21–06, gryning 06–08, dag 08–18. Färgerna glider över.

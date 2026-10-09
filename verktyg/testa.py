@@ -11,7 +11,8 @@ finns window.spelet att läsa) och kontrollerar att:
   - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa, kraschrutan visas och
     man kommer tillbaka till start,
-  - nattbanan fungerar och klockan väljer bana,
+  - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
+    gryning),
   - sidan också går att öppna i datorformat (bred skärm).
 
     python verktyg/testa.py                 # ca 30 s, skriver OK/FEL
@@ -188,22 +189,26 @@ def main():
 
         kolla(not jsfel, 'inga JavaScript-fel' + (': ' + ' | '.join(jsfel) if jsfel else ''))
 
-        # --- Natten (vald i adressen) och att klockan väljer bana ---
+        # --- Natten (vald i adressen) och dygnet (klockan styr färgerna) ---
         natt = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
         nattfel = []
         natt.on('pageerror', lambda e: nattfel.append(str(e)))
         natt.goto(url + '?test&bana=natt')
         natt.wait_for_function('window.spelet !== undefined', timeout=5000)
         kolla(natt.evaluate('spelet.bana.namn') == 'Natten', 'nattbanan går att välja (?bana=natt)')
-        natt.keyboard.press('Space')
-        time.sleep(1.5)
-        bild(natt, '6-natt.png')
-        timme = natt.evaluate('new Date().getHours()')
-        natt.goto(url + '?test')
-        natt.wait_for_function('window.spelet !== undefined', timeout=5000)
-        vantat = 'Natten' if timme >= 20 or timme < 8 else 'Ängen'
-        kolla(natt.evaluate('spelet.bana.namn') == vantat,
-              'klockan väljer bana (kl. %d: %s)' % (timme, vantat))
+        himmel = {}
+        for klocka in ('12', '19.5', '23', '7'):
+            natt.goto(url + '?test&klocka=' + klocka)
+            natt.wait_for_function('window.spelet !== undefined', timeout=5000)
+            natt.keyboard.press('Space')
+            time.sleep(1.2)
+            himmel[klocka] = natt.evaluate('spelet.farger.himmelTopp')
+            bild(natt, '6-klocka-%s.png' % klocka)
+        dag = sida.evaluate('spelet.bana.paletter.dag.himmelTopp')
+        nattF = sida.evaluate('spelet.bana.paletter.natt.himmelTopp')
+        kolla(himmel['12'] == dag and himmel['23'] == nattF
+              and himmel['19.5'] not in (dag, nattF) and himmel['7'] not in (dag, nattF),
+              'klockan styr färgerna (dag 12, skymning 19.30, natt 23, gryning 7)')
         kolla(not nattfel, 'inga JavaScript-fel på natten' + (': ' + ' | '.join(nattfel) if nattfel else ''))
 
         # --- Dator, bred skärm ---
