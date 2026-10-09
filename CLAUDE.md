@@ -77,7 +77,10 @@ rakt under främre ögat, armarna hamnar aldrig över kroppen.
 - **Figuren** står still i x (`FIGUR_X`), banan rullar. Armarna flyttas i
   hela steg om 12 figurpixlar vid flax (`armLyft`). Svävande ben sackar
   8/4 px nedåt efter ett flax (`benSack`). Ögonen blinkar och blundar vid
-  krasch (`blundar`).
+  krasch (`blundar`). På startskärmen andas den (`andning`, `kroppSank`,
+  rutorna i `figur.andning`), och när en stapel klaras jublar den med
+  armarna och kisar (`jubelLyft`, `jublar`, `figur.jubel`). Allt det är bara
+  ritning: träffytan påverkas inte.
 - **Staplar** (raka, enfärgade — inga rör med kapsyl) fylls på till höger
   (`fyllPaStaplar`); öppningen slumpas men flyttar sig högst `maxHopp`
   mellan två staplar. **Lätt i början:** öppningen är `oppningStart` (200)

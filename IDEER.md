@@ -5,22 +5,11 @@ Små steg: en sak i taget, testa (`python verktyg/testa.py`), pusha, spela på
 telefonen. Bocka av (`[x]`) och flytta gjort till "Gjort" längst ner. Nya
 idéer skrivs in där de passar.
 
-## Att bestämma
-
-- [ ] **Åt vilket håll flyger keIWs?** keIWs vrider sig alltid åt vänster i
-  sina animationer. I spelet är sidovyn just nu speglad så att den tittar åt
-  höger (som i Flappy Bird). Alternativet är att banan rullar åt andra
-  hållet och keIWs flyger åt vänster, utan spegling.
-
 ## 1. Mer liv i keIWs
 
 Bara klossar som flyttas, ingen rotation. Armarna flyttas i hopp, alltid
 minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 
-- [ ] **Andas på startskärmen**, framifrån: kroppen med ögon och mage går ner
-  0 → 2 → 4 px, armarna en ruta efter 0 → 2 → 4 → 6 → 4, benen står still.
-  Ca 110–130 ms per ruta, ett andetag ca 2,8 s. Blinkar (8 px streck) i två
-  rutor precis när kroppen börjar sjunka.
 - [ ] **Vinkar på startskärmen** ibland: höger arm (framifrån) hoppar
   upp bredvid huvudet och vinkar tre gånger (130 ms per läge), vänster arm
   gungar 0/4 px i takt, blicken flyttas 4 px mot handen, kisar ca 300 ms
@@ -29,9 +18,9 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
   steg à 90 ms. Ögon, ben och bortre arm flyttas jämnt mellan lägena
   (avrundat till 2 px), bortre arm och ben blir mörka efter halva vridningen.
   Kräver figurens framvy och mellanlägen i `figurer.js`.
-- [ ] **Jublar** när man klarar en stapel, eller vid nytt rekord: armarna
-  upp, ett litet skutt (dy −16, −28, −16, 0, −12, 0 à 80–90 ms), blinkar
-  högst upp.
+- [ ] **Större jubel vid nytt rekord**: ett litet skutt (dy −16, −28, −16,
+  0, −12, 0 à 80–90 ms), blinkar högst upp. Bara visuellt, träffytan ska
+  inte flytta sig. (Vanligt jubel per stapel finns redan.)
 - [ ] **Tydligare krasch**: blundar redan; kanske armarna rakt upp och en
   liten studs mot marken.
 
@@ -104,3 +93,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Lätt i början: öppningen 200 → 150, 5 per stapel. Lite långsammare fall.
 - [x] keIWs som figur.
 - [x] Testskript: `verktyg/testa.py`.
+- [x] keIWs flyger åt höger (sidovyn speglad), bestämt 2026-10-09.
+- [x] keIWs andas på startskärmen (kroppen sjunker 0–4 px, armarna hänger
+  efter, blinkar) och jublar med armarna när man klarar en stapel.

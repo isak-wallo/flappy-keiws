@@ -45,7 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const fig = {
         y: START_Y,
         v: 0,
-        flaxTid: 1                   // s sedan senaste flaxet
+        flaxTid: 1,                  // s sedan senaste flaxet
+        jubelTid: 99                 // s sedan senaste klarade stapeln
     };
 
     // ------------------------------------------------------------------
@@ -101,11 +102,51 @@ document.addEventListener('DOMContentLoaded', () => {
     // steg om 12 px, som i animationerna.
     function armLyft() {
         if (tillstand === 'krasch') return -12;
-        if (tillstand === 'start') return Math.sin(tid * 6) > 0.3 ? -12 : 0;
-        if (fig.flaxTid < 0.08) return -24;
-        if (fig.flaxTid < 0.18) return -12;
-        if (fig.v > 380) return -12;     // faller fort: armarna upp
+        if (tillstand === 'start') { const a = andning(); return a ? a.arm : 0; }
+        let lyft = 0;
+        if (fig.flaxTid < 0.08) lyft = -24;
+        else if (fig.flaxTid < 0.18) lyft = -12;
+        else if (fig.v > 380) lyft = -12;    // faller fort: armarna upp
+        return Math.min(lyft, jubelLyft());  // det som är högst upp vinner
+    }
+
+    // Andningen på startskärmen: { kropp, arm, blink } för just nu, eller
+    // null om figuren inte har någon andning.
+    function andning() {
+        const an = figur.andning;
+        if (!an) return null;
+        let total = 0;
+        for (const r of an.rutor) total += r[2];
+        let t = (tid * 1000) % total;
+        for (let i = 0; i < an.rutor.length; i++) {
+            const [kropp, arm, ms] = an.rutor[i];
+            if (t < ms) return { kropp, arm, blink: an.blink.includes(i) };
+            t -= ms;
+        }
+        return null;
+    }
+
+    // Jubel efter en klarad stapel: armarna hoppar upp en stund.
+    function jubelLyft() {
+        const ju = figur.jubel;
+        if (!ju) return 0;
+        let t = fig.jubelTid * 1000;
+        for (const [lyft, ms] of ju.armar) {
+            if (t < ms) return lyft;
+            t -= ms;
+        }
         return 0;
+    }
+
+    function jublar() {
+        return figur.jubel && fig.jubelTid * 1000 < figur.jubel.blinkMs;
+    }
+
+    // Hur långt kroppen (med ögon och mage) har sjunkit när figuren andas.
+    function kroppSank() {
+        if (tillstand !== 'start') return 0;
+        const a = andning();
+        return a ? a.kropp : 0;
     }
 
     // Svävande ben sackar efter lite nedåt precis efter ett flax.
@@ -116,21 +157,28 @@ document.addEventListener('DOMContentLoaded', () => {
         return 0;
     }
 
-    // Blundar ögonen? Blinkar ibland, kisar vid krasch.
+    // Blundar ögonen? Kisar vid krasch och av glädje när den jublar,
+    // blinkar i takt med andningen på startskärmen och annars ibland.
     function blundar() {
-        return tillstand === 'krasch' || (tid % 3.2) < 0.12;
+        if (tillstand === 'krasch') return true;
+        if (tillstand === 'start') {
+            const a = andning();
+            if (a) return a.blink;
+        }
+        return jublar() || (tid % 3.2) < 0.12;
     }
 
     function ritaFigur(y) {
         const k = figur.skala, m = figur.mitt;
-        const lyft = armLyft(), sack = benSack(), blund = blundar();
+        const lyft = armLyft(), sack = benSack(), blund = blundar(), sank = kroppSank();
         for (const [x0, y0, x1, y1, roll, farg] of figur.klossar) {
             let a = y0, b = y1;
             if (roll === 'arm') { a += lyft; b += lyft; }
             if (roll === 'ben') { a += sack; b += sack; }
+            if (roll === 'kropp' || roll === 'oga') { a += sank; b += sank; }
             if (roll === 'oga' && blund) {
                 // Ögat blir ett streck mitt i ögat
-                const mittY = (y0 + y1) / 2;
+                const mittY = (a + b) / 2;
                 a = mittY - figur.blink / 2; b = mittY + figur.blink / 2;
             }
             rekt(FIGUR_X + (x0 - m[0]) * k, y + (a - m[1]) * k,
@@ -378,10 +426,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function uppdatera(dt) {
         tid += dt;
         fig.flaxTid += dt;
+        fig.jubelTid += dt;
 
         if (tillstand === 'start') {
             rullat += bana.fart * dt;
-            fig.y = START_Y + Math.sin(tid * 3) * 6;
+            // Svävar sakta och andas (andningen ritas i ritaFigur)
+            fig.y = START_Y + Math.sin(tid * 1.6) * 3;
             return;
         }
 
@@ -405,6 +455,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!p.passerad && p.x + bana.stapelBredd < traff[0]) {
                     p.passerad = true;
                     poang++;
+                    fig.jubelTid = 0;
                 }
                 for (const del of stapelDelar(p)) {
                     if (overlappar(traff, del)) { krascha(); return; }

@@ -13,6 +13,9 @@
 //   'oga'   – kan blinka och kisa (blir ett `blink` px högt streck)
 //   'ben'   – svävande ben som sackar efter lite nedåt vid ett flax
 //
+// `andning` (startskärmen) och `jubel` (när en stapel klaras) är små
+// animationer i figurpixlar, samma värden som i figurens egna animationer.
+//
 // `traff` är träffytan för kollisioner, lite mindre än kroppen så att det
 // känns rättvist. Armarna räknas inte.
 //
@@ -44,6 +47,26 @@ const FIGURER = {
             [116, 99, 152, 135, 'kropp', 'mage']    // magklossen under främre ögat
         ],
         blink: 8,
+        // Andas: [kroppen ner, armarna ner, ms] per ruta. Kroppen med ögon
+        // och mage sjunker, armarna hänger efter en ruta, benen står still.
+        // Blinkar i rutorna `blink`, precis när kroppen börjar sjunka.
+        andning: {
+            rutor: [
+                [0, 0, 100], [0, 0, 100], [0, 0, 100], [0, 0, 100], [0, 0, 100], [0, 0, 100],
+                [2, 0, 110], [4, 2, 110], [4, 4, 110], [4, 6, 120], [4, 6, 120],
+                [4, 4, 130], [4, 4, 130], [4, 4, 130],
+                [2, 4, 110], [0, 2, 110], [0, 0, 110], [0, 0, 100],
+                [0, 0, 100], [0, 0, 100], [0, 0, 100], [0, 0, 100],
+                [0, 0, 100], [0, 0, 100], [0, 0, 100], [0, 0, 100]
+            ],
+            blink: [6, 7]
+        },
+        // Jublar: armarna hoppar upp [lyft, ms] och keIWs kisar av glädje
+        // de första `blinkMs`.
+        jubel: {
+            armar: [[-24, 80], [-36, 140], [-24, 90], [-12, 80]],
+            blinkMs: 220
+        },
         mitt: [80, 102],
         traff: [6, 6, 154, 198]        // kropp + ben, lite indragen
     }
