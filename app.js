@@ -10,18 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Kugghjulet för menyn, 8×8 pixlar
+    // Kugghjulet (11×11 pixlar, åtta kuggar) och texten "Meny"
     menyknapp.innerHTML = (() => {
-        const bild = ['...##...', '.######.', '.##..##.', '###..###',
-                      '###..###', '.##..##.', '.######.', '...##...'];
+        const bild = ['....###....', '.##.###.##.', '.#########.', '..#######..',
+                      '####...####', '####...####', '####...####', '..#######..',
+                      '.#########.', '.##.###.##.', '....###....'];
         let rutor = '';
         bild.forEach((rad, y) => {
             for (let x = 0; x < rad.length; x++) {
                 if (rad[x] === '#') rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
             }
         });
-        return '<svg width="32" height="32" viewBox="0 0 8 8" shape-rendering="crispEdges" fill="#f5faf8">' +
-            rutor + '</svg>';
+        return '<svg width="33" height="33" viewBox="0 0 11 11" shape-rendering="crispEdges" fill="currentColor">' +
+            rutor + '</svg>' + pixeltext('Meny', 3);
     })();
 
     // --- Val (blir inställningar längre fram) ---
@@ -912,7 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.passerad = true;
                     poang++;
                     fig.jubelTid = 0;
-                    if (bast > 0 && poang === bast + 1) fig.rekordTid = 0;   // slog rekordet
+                    if (poang === bast + 1) fig.rekordTid = 0;   // slog rekordet (även 0)
                     poangTid = 0;
                 }
                 for (const del of stapelDelar(p)) {

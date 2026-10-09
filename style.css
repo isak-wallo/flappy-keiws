@@ -100,6 +100,11 @@ html, body {
     top: calc(env(safe-area-inset-top, 0px) + 12px);
     right: 12px;
     padding: 6px;             /* lite större yta att träffa */
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    color: #f5faf8;
+    font-size: 0;             /* "Meny" är pixeltext */
     line-height: 0;
     filter: drop-shadow(3px 3px 0 rgba(47, 63, 76, 0.35));
 }
