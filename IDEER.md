@@ -23,8 +23,6 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 
 - [ ] **"Redo?"-stund** innan första stapeln: figuren svävar på plats tills
   första trycket (finns delvis: startläget).
-- [ ] **Pixeltypsnitt** i textrutan, så att texten matchar siffrorna (egna
-  bokstäver i 3×5 eller 5×7, ritade på canvas).
 - [ ] Justera fysiken efter mer spelande (`banor.js`: tyngd, flax, fart,
   öppning).
 
@@ -96,3 +94,4 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] Medaljer i kraschrutan: brons 10, silver 25, guld 50.
 - [x] Tydligare krasch: armarna rakt upp och en liten studs mot marken.
 - [x] Skutt med armarna upp när man slår sitt rekord.
+- [x] Eget pixeltypsnitt (5×7, gemener och åäö) i textrutorna.

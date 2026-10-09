@@ -395,20 +395,23 @@ document.addEventListener('DOMContentLoaded', () => {
     // Rutan med text (start och krasch)
     // ------------------------------------------------------------------
 
+    // Texten ritas i pixeltypsnittet (typsnitt.js): skärmpixlar per pixel
+    const TEXT_STOR = 4, TEXT = 2;
+
     function visaStartruta() {
         ruta.innerHTML =
-            '<h1>Flappy keIWs</h1>' +
-            '<p>Tryck för att flyga</p>' +
-            (bast > 0 ? '<p class="liten">Bäst: ' + bast + '</p>' : '') +
-            (version ? '<p class="version">' + version + '</p>' : '');
+            '<h1>' + pixeltext('Flappy keIWs', TEXT_STOR) + '</h1>' +
+            '<p>' + pixeltext('Tryck för att flyga', TEXT) + '</p>' +
+            (bast > 0 ? '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>' : '') +
+            (version ? '<p class="version">' + pixeltext(version, 1) + '</p>' : '');
         ruta.classList.remove('dold');
     }
 
     function visaPausruta() {
         ruta.innerHTML =
-            '<h1>Paus</h1>' +
-            '<p class="liten">Poäng: ' + poang + '</p>' +
-            '<p>Tryck för att fortsätta</p>';
+            '<h1>' + pixeltext('Paus', TEXT_STOR) + '</h1>' +
+            '<p class="liten">' + pixeltext('Poäng: ' + poang, TEXT) + '</p>' +
+            '<p>' + pixeltext('Tryck för att fortsätta', TEXT) + '</p>';
         ruta.classList.remove('dold');
         rutaVisadVid = performance.now();
     }
@@ -458,11 +461,12 @@ document.addEventListener('DOMContentLoaded', () => {
     function visaKraschruta() {
         const medalj = medaljFor(poang);
         ruta.innerHTML =
-            '<p class="liten">Poäng</p>' +
-            '<h1>' + poang + '</h1>' +
-            (medalj ? '<p class="liten">' + medaljSvg(medalj) + MEDALJ_NAMN[medalj] + '</p>' : '') +
-            (nyttRekord ? '<p>Nytt rekord!</p>' : '<p class="liten">Bäst: ' + bast + '</p>') +
-            '<p class="liten">Tryck för att spela igen</p>';
+            '<p class="liten">' + pixeltext('Poäng', TEXT) + '</p>' +
+            '<h1>' + pixeltext(String(poang), TEXT_STOR) + '</h1>' +
+            (medalj ? '<p class="liten">' + medaljSvg(medalj) + pixeltext(MEDALJ_NAMN[medalj], TEXT) + '</p>' : '') +
+            (nyttRekord ? '<p>' + pixeltext('Nytt rekord!', TEXT) + '</p>'
+                        : '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>') +
+            '<p class="liten">' + pixeltext('Tryck för att spela igen', TEXT) + '</p>';
         ruta.classList.remove('dold');
         rutaVisadVid = performance.now();
     }

@@ -55,19 +55,35 @@ html, body {
 }
 
 #ruta h1 {
-    margin: 4px 0 10px;
-    font-size: 30px;
-    letter-spacing: 1px;
+    margin: 2px 0 8px;
 }
 
 #ruta p {
-    margin: 6px 0;
-    font-size: 18px;
+    margin: 4px 0;
+}
+
+#ruta h1, #ruta p {
+    font-size: 0;        /* texten är pixelbilder (typsnitt.js), ingen vanlig text */
+    line-height: 0;
 }
 
 #ruta p.liten {
-    font-size: 15px;
     color: #5f8292;
+}
+
+/* Ett ord i pixeltypsnittet är ett SVG; raderna bryts mellan orden */
+.pixeltext svg {
+    vertical-align: bottom;
+}
+
+/* Den riktiga texten, för skärmläsare (syns inte) */
+.osynlig {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
 }
 
 /* Medaljen i kraschrutan, i pixelstil */
@@ -81,9 +97,8 @@ html, body {
 /* Versionen, litet i nedre högra hörnet av startrutan */
 #ruta p.version {
     position: absolute;
-    right: 6px;
-    bottom: 2px;
+    right: 4px;
+    bottom: 3px;
     margin: 0;
-    font-size: 11px;
     color: #9db4be;
 }

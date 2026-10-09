@@ -43,7 +43,9 @@ där.
   guld 50), ritade som små SVG-pixelbilder (`MEDALJ_BILD`).
 - Poäng i egna 3×5-pixelsiffror på canvasen (siffran studsar till vid
   varje poäng, `STUDS`/`poangStuds`); bästa resultatet i
-  `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM.
+  `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM,
+  men ritade i pixeltypsnittet (`pixeltext`, storlek `TEXT_STOR`/`TEXT`
+  skärmpixlar per pixel).
 - Lugna, lite dova pixelfärger (himmel i band, moln, två lager kullar,
   raka staplar i olika gröna nyanser, sandmark).
 
@@ -51,7 +53,8 @@ där.
 
 | Fil | Roll |
 |-----|------|
-| `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figurer.js`, `banor.js`, `app.js` i den ordningen. |
+| `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
+| `typsnitt.js` | `TYPSNITT`: eget pixeltypsnitt (versaler 7 rutor, gemener 5, svansar 2 under, åäö) och `pixeltext(text, px)`, som ger HTML med ett SVG per ord plus osynlig riktig text. Saknas ett tecken ritas `?` — lägg till det i `tecken`. |
 | `figurer.js` | `FIGURER`: figurer som klossar i figurens animationsmått (512×304 px per bild), med roller `kropp`/`arm`/`oga`/`ben`, `skala`, `blink` (blinkstreckets höjd), `mitt` och träffyta `traff`. keIWs = sidovyn, speglad åt höger. |
 | `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler) och färger. |
 | `app.js` | Spelet: loop, fysik, kollisioner, ritning, poäng, layout, styrning, helskärm, SW-registrering. Väljer figur och bana högst upp (`figur`, `bana`). |
