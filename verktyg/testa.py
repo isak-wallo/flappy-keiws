@@ -11,6 +11,7 @@ finns window.spelet att läsa) och kontrollerar att:
   - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa, kraschrutan visas och
     man kommer tillbaka till start,
+  - nattbanan fungerar och klockan väljer bana,
   - sidan också går att öppna i datorformat (bred skärm).
 
     python verktyg/testa.py                 # ca 30 s, skriver OK/FEL
@@ -186,6 +187,24 @@ def main():
         bild(sida, '5-version.png')
 
         kolla(not jsfel, 'inga JavaScript-fel' + (': ' + ' | '.join(jsfel) if jsfel else ''))
+
+        # --- Natten (vald i adressen) och att klockan väljer bana ---
+        natt = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+        nattfel = []
+        natt.on('pageerror', lambda e: nattfel.append(str(e)))
+        natt.goto(url + '?test&bana=natt')
+        natt.wait_for_function('window.spelet !== undefined', timeout=5000)
+        kolla(natt.evaluate('spelet.bana.namn') == 'Natten', 'nattbanan går att välja (?bana=natt)')
+        natt.keyboard.press('Space')
+        time.sleep(1.5)
+        bild(natt, '6-natt.png')
+        timme = natt.evaluate('new Date().getHours()')
+        natt.goto(url + '?test')
+        natt.wait_for_function('window.spelet !== undefined', timeout=5000)
+        vantat = 'Natten' if timme >= 20 or timme < 8 else 'Ängen'
+        kolla(natt.evaluate('spelet.bana.namn') == vantat,
+              'klockan väljer bana (kl. %d: %s)' % (timme, vantat))
+        kolla(not nattfel, 'inga JavaScript-fel på natten' + (': ' + ' | '.join(nattfel) if nattfel else ''))
 
         # --- Dator, bred skärm ---
         dator = b.new_page(viewport={'width': 1280, 'height': 800})

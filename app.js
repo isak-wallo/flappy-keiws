@@ -11,14 +11,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Val (blir inställningar längre fram) ---
     const figur = FIGURER.keiws;
-    const bana = BANOR.angen;
-    const F = bana.farger;
+
+    // Banan följer klockan: natt från NATT_FRAN till NATT_TILL, annars ängen.
+    // ?bana=natt (eller angen) i adressen väljer själv. Byts bara på
+    // startskärmen (valjBana), aldrig mitt i en runda.
+    const NATT_FRAN = 20, NATT_TILL = 8;
+    const BANA_I_ADRESS = (/[?&]bana=(\w+)/.exec(location.search) || [])[1];
+    function banaNu() {
+        if (BANOR[BANA_I_ADRESS]) return BANOR[BANA_I_ADRESS];
+        const h = new Date().getHours();
+        return (h >= NATT_FRAN || h < NATT_TILL) ? BANOR.natt : BANOR.angen;
+    }
+    let bana = banaNu();
+    let F = bana.farger;
 
     // --- Världen ---
     const VARLD_B = 360;             // världens bredd (enheter)
     const VARLD_H = 640;             // världens höjd
     const MAX_B = 400;               // högst så här bred vy (dator/platta)
-    const MARK_Y = VARLD_H - bana.markHojd;
+    let MARK_Y = VARLD_H - bana.markHojd;
     const FIGUR_X = 100;             // figuren står still i x, banan rullar
     const START_Y = 280;             // där figuren svävar innan man börjar
     const STEG = 1 / 120;            // fast tidssteg för fysiken (s)
@@ -302,6 +313,58 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Stjärnor (bara på banor med `stjarnor`): fasta platser på himlen som
+    // glider väldigt sakta, några blinkar lite. Platserna räknas fram en
+    // gång med en enkel slump med frö, så de ligger likadant varje gång.
+    const STJARNOR = [];
+    (function () {
+        let fro = 7;
+        const slump = () => (fro = (fro * 16807) % 2147483647) / 2147483647;
+        for (let i = 0; i < 80; i++) {
+            STJARNOR.push({ x: slump() * 460, y: -120 + slump() * 520, stor: slump() < 0.25, fas: slump() * 6.3 });
+        }
+    })();
+
+    function ritaStjarnor() {
+        if (!bana.stjarnor) return;
+        const varv = vyB + 100;
+        for (let i = 0; i < bana.stjarnor && i < STJARNOR.length; i++) {
+            const st = STJARNOR[i];
+            if (st.y < vyY0 || st.y > MARK_Y - 90) continue;
+            let x = (st.x - rullat * 0.02) % varv;
+            if (x < 0) x += varv;
+            x += vyX0 - 50;
+            const ljus = Math.sin(tid * 1.3 + st.fas) > -0.6;
+            const k = st.stor ? 4 : 2;
+            rekt(x, st.y, k, k, ljus ? F.stjarna : F.stjarnaSvag);
+        }
+    }
+
+    // Månen: en pixlig rund skiva med några kratrar ('o'), högt upp till
+    // höger. Den är så långt bort att den står still.
+    const MANE = [
+        '..####..',
+        '.######.',
+        '##o#####',
+        '#oo#####',
+        '########',
+        '#####oo#',
+        '.####o#.',
+        '..####..'
+    ];
+
+    function ritaMane() {
+        if (!bana.mane) return;
+        const k = 6;
+        const x0 = vyX0 + vyB - 90, y0 = Math.max(vyY0, 0) + 70;
+        MANE.forEach((rad, y) => {
+            for (let x = 0; x < rad.length; x++) {
+                if (rad[x] === '.') continue;
+                rekt(x0 + x * k, y0 + y * k, k, k, rad[x] === 'o' ? F.maneSkugga : F.mane);
+            }
+        });
+    }
+
     // Molnen ligger utspridda och glider sakta förbi (en tiondel av farten).
     const MOLN = [
         { x: 30, y: 110, b: 64 },
@@ -505,8 +568,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    // Byt bana om klockan säger det (bara på startskärmen)
+    function valjBana() {
+        const ny = banaNu();
+        if (ny === bana) return;
+        bana = ny;
+        F = bana.farger;
+        MARK_Y = VARLD_H - bana.markHojd;
+    }
+
     function tillbakaTillStart() {
         if (laddaOmSen) { window.location.reload(); return; }
+        valjBana();
         tillstand = 'start';
         staplar = [];
         fig.y = START_Y;
@@ -551,6 +624,7 @@ document.addEventListener('DOMContentLoaded', () => {
         fig.rekordTid += dt;
 
         if (tillstand === 'start') {
+            if (Math.floor(tid / 30) !== Math.floor((tid - dt) / 30)) valjBana();   // var 30:e s
             rullat += bana.fart * dt;
             // Svävar sakta och andas (andningen ritas i ritaFigur)
             fig.y = START_Y + Math.sin(tid * 1.6) * 3;
@@ -610,6 +684,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function rita() {
         ritaHimmel();
+        ritaStjarnor();
+        ritaMane();
         ritaMoln();
         ritaKullar(0.15, 70, 16, 0.012, F.kullar);
         ritaKullar(0.3, 36, 10, 0.021, F.kullarNara);
@@ -729,7 +805,9 @@ document.addEventListener('DOMContentLoaded', () => {
             get version() { return version; },
             get fig() { return fig; },
             get staplar() { return staplar; },
-            bana, FIGUR_X, MARK_Y
+            get bana() { return bana; },
+            get MARK_Y() { return MARK_Y; },
+            FIGUR_X
         };
     }
 

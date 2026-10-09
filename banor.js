@@ -4,7 +4,8 @@
 // form syns lite mer himmel ovanför och mark nedanför, eller lite mer åt
 // sidorna (högst 400 enheter bred).
 //
-// Ny bana: kopiera `angen`, ändra värdena och välj den i app.js.
+// Ny bana: kopiera `angen` (eller gör som `natt`: ta över allt och byt
+// det som skiljer), ändra värdena och välj den i app.js.
 
 const BANOR = {
     angen: {
@@ -48,5 +49,37 @@ const BANOR = {
             siffror: '#ffffff',
             sifferSkugga: '#5f8292'
         }
+    }
+};
+
+// Natten: samma fysik och hinder som ängen, men mörkblå himmel med
+// stjärnor och måne, och staplar i dovt blått. Spelet väljer den själv
+// på kvällen och natten (se NATT_FRAN/NATT_TILL i app.js).
+BANOR.natt = {
+    ...BANOR.angen,
+    namn: 'Natten',
+
+    stjarnor: 36,         // så många stjärnor som blinkar på himlen
+    mane: true,
+
+    farger: {
+        himmelTopp: '#18223b',
+        himmelBotten: '#3a5076',
+        moln: '#3d5074',
+        molnSkugga: '#33445f',
+        kullar: '#2b4058',
+        kullarNara: '#243749',
+        // Dovt blått och lite blågrönt (aldrig samma två i rad)
+        staplar: ['#4f6f9a', '#5d82a8', '#46668c', '#6a8fb0', '#4c7d94', '#587aa3'],
+        gras: '#3e5f55',
+        grasKant: '#33524a',
+        jord: '#4d4a63',
+        jordRand: '#433f58',
+        siffror: '#ffffff',
+        sifferSkugga: '#18223b',
+        stjarna: '#f3efd6',
+        stjarnaSvag: '#8c9abb',
+        mane: '#efe7c4',
+        maneSkugga: '#d3c99e'
     }
 };

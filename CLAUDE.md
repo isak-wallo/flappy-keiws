@@ -28,8 +28,13 @@ där.
 
 ## Vad spelet gör
 
-- **Stående**, en bana (`angen`), en figur (`keiws`), inga ljud, inga
-  inställningar.
+- **Stående**, en figur (`keiws`), inga ljud, inga inställningar.
+- Två banor med samma fysik och hinder: `angen` (dag) och `natt`
+  (stjärnor, måne, blå staplar). **Klockan väljer**: natt från `NATT_FRAN`
+  (20) till `NATT_TILL` (8), annars ängen (`banaNu`). `?bana=natt` eller
+  `?bana=angen` i adressen väljer själv. Banan byts bara på startskärmen
+  (`valjBana`, vid återkomst till start och var 30:e s), aldrig mitt i en
+  runda. Rekordet är gemensamt.
 - Tryck/klick/mellanslag/pil upp/W/Enter = flaxa. Lägen: `start` (figuren
   gungar, ruta "Tryck för att flyga") → `spelar` → `krasch` (figuren faller
   till marken, blundar; efter `VISA_KRASCH_EFTER` visas poäng/bäst) → tryck
@@ -56,13 +61,13 @@ där.
 | `index.html` | Canvas `#spel` + textrutan `#ruta`. Laddar `figurer.js`, `banor.js`, `typsnitt.js`, `app.js` i den ordningen. |
 | `typsnitt.js` | `TYPSNITT`: eget pixeltypsnitt (versaler 7 rutor, gemener 5, svansar 2 under, åäö) och `pixeltext(text, px)`, som ger HTML med ett SVG per ord plus osynlig riktig text. Saknas ett tecken ritas `?` — lägg till det i `tecken`. |
 | `figurer.js` | `FIGURER`: figurer som klossar i figurens animationsmått (512×304 px per bild), med roller `kropp`/`arm`/`oga`/`ben`, `skala`, `blink` (blinkstreckets höjd), `mitt` och träffyta `traff`. keIWs = sidovyn, speglad åt höger. |
-| `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler) och färger. |
+| `banor.js` | `BANOR`: en bana = fysik (fart, tyngd, flax, maxFall), hinder (bredd, öppning i början och sen, avstånd, marginaler), medaljer och färger. `natt` tar över allt från `angen` (`...BANOR.angen`) och byter färger, plus `stjarnor` och `mane`. |
 | `app.js` | Spelet: loop, fysik, kollisioner, ritning, poäng, layout, styrning, helskärm, SW-registrering. Väljer figur och bana högst upp (`figur`, `bana`). |
 | `style.css` | Fullskärm, textrutan i pixelstil. |
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
-| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, medalj, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
+| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, medalj, nattbanan och att klockan väljer bana, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
 | `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
 
 ## Stilregler för figurerna
