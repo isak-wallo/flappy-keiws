@@ -354,6 +354,13 @@ document.addEventListener('DOMContentLoaded', () => {
         return f;
     }
 
+    // Stapelns bredd: samma i början, sedan en slumpad ur banans lista.
+    function stapelBreddFor(n) {
+        const lista = bana.stapelBredder;
+        if (!lista || n < bana.breddFran) return bana.stapelBredd;
+        return lista[Math.floor(Math.random() * lista.length)];
+    }
+
     function nyStapel(x, forra) {
         const nr = forra ? forra.nr + 1 : 0;
         const oppning = oppningFor(nr);
@@ -365,7 +372,8 @@ document.addEventListener('DOMContentLoaded', () => {
             lo = Math.max(min, forra.mittY - bana.maxHopp);
             hi = Math.min(max, forra.mittY + bana.maxHopp);
         }
-        return { x, nr, oppning, farg: stapelFarg(forra), mittY: rand(lo, hi), passerad: false };
+        return { x, nr, b: stapelBreddFor(nr), oppning, farg: stapelFarg(forra),
+                 mittY: rand(lo, hi), passerad: false };
     }
 
     // Lägger till staplar till höger tills det finns en precis utanför vyn.
@@ -377,7 +385,7 @@ document.addEventListener('DOMContentLoaded', () => {
             staplar.push(sista);
         }
         while (sista.x < hoger + 20) {
-            sista = nyStapel(sista.x + bana.stapelBredd + bana.avstand, sista);
+            sista = nyStapel(sista.x + sista.b + bana.avstand, sista);
             staplar.push(sista);
         }
     }
@@ -385,7 +393,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // De två delarna av en stapel (ovanför och under öppningen) som
     // träffytor: [x0, y0, x1, y1].
     function stapelDelar(p) {
-        const b = bana.stapelBredd, halv = p.oppning / 2;
+        const b = p.b, halv = p.oppning / 2;
         return [
             [p.x, -10000, p.x + b, p.mittY - halv],
             [p.x, p.mittY + halv, p.x + b, MARK_Y]
@@ -398,7 +406,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Raka, enfärgade staplar
     function ritaStapel(p) {
-        const b = bana.stapelBredd, halv = p.oppning / 2;
+        const b = p.b, halv = p.oppning / 2;
         const farg = F.staplar[p.farg % F.staplar.length];
         rekt(p.x, vyY0, b, p.mittY - halv - vyY0, farg);
         rekt(p.x, p.mittY + halv, b, MARK_Y - (p.mittY + halv), farg);
@@ -784,12 +792,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             for (const p of staplar) p.x -= bana.fart * dt;
-            while (staplar.length && staplar[0].x + bana.stapelBredd < vyX0) staplar.shift();
+            while (staplar.length && staplar[0].x + staplar[0].b < vyX0) staplar.shift();
             fyllPaStaplar();
 
             const traff = figurTraff(fig.y);
             for (const p of staplar) {
-                if (!p.passerad && p.x + bana.stapelBredd < traff[0]) {
+                if (!p.passerad && p.x + p.b < traff[0]) {
                     p.passerad = true;
                     poang++;
                     fig.jubelTid = 0;

@@ -35,7 +35,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 ## 4. Hinder och saker längs vägen
 
 - [ ] **Glidande staplar** som sakta går upp och ner (i senare banor).
-- [ ] **Olika breda** staplar som omväxling.
 - [ ] **Något att plocka**: en liten kloss eller stjärna i öppningen som
   ger extrapoäng.
 - [ ] **Ond** (keIWs onda dubbelgångare) som fiende: samma kropp men
@@ -96,6 +95,7 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Olika breda staplar (40–96) från fjärde stapeln.
 - [x] Glädjeskuttet vid nytt rekord är figurens egen jubelanimation ur
   exporten.
 - [x] Solen syns på dagen. Solen och månen går upp och ner i raka linjer

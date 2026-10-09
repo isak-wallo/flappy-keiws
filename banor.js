@@ -18,7 +18,9 @@ const BANOR = {
         maxFall: 480,         // högsta fallfart
 
         // --- Hinder ---
-        stapelBredd: 56,
+        stapelBredd: 56,      // de första staplarna ...
+        stapelBredder: [40, 56, 56, 72, 96],   // ... sedan en slumpad av de här
+        breddFran: 3,         // (från stapel nummer 3, 0 = första)
         oppningStart: 200,    // öppningen vid första stapeln (lätt i början) ...
         oppningSteg: 5,       // ... krymper så här mycket för varje stapel ...
         oppning: 150,         // ... ner till den här höjden (nås vid stapel 11)

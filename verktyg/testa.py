@@ -6,8 +6,8 @@ finns window.spelet att läsa) och kontrollerar att:
   - inga JavaScript-fel uppstår,
   - startrutan visas och figuren vinkar,
   - en bot som läser spelets läge klarar sig förbi några staplar
-    (banan går att spela, poängen räknas) och figuren jublar när
-    rekordet slås,
+    (banan går att spela, poängen räknas, staplarna är olika breda) och
+    figuren jublar när rekordet slås,
   - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
   - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa, kraschrutan visas och
@@ -50,7 +50,7 @@ BOT = r"""
   const loop = () => {
     if (window.botPa && S.tillstand === 'spelar') {
       const b = S.bana;
-      const p = S.staplar.find(p => p.x + b.stapelBredd > S.FIGUR_X - 30);
+      const p = S.staplar.find(p => p.x + p.b > S.FIGUR_X - 30);
       const mal = p ? p.mittY + 15 : 300;
       if (S.fig.y > mal && S.fig.v > 0) {
         window.dispatchEvent(new PointerEvent('pointerdown', { pointerType: 'mouse', bubbles: true }));
@@ -126,8 +126,9 @@ def main():
         sida.add_init_script("localStorage.setItem('flappy-keiws-bast', '2')")
         sida.goto(url + '?test')
         sida.wait_for_function('window.spelet !== undefined', timeout=5000)
-        sida.evaluate("""window.sagJubel = false; (function kolla() {
+        sida.evaluate("""window.sagJubel = false; window.bredder = {}; (function kolla() {
             if (spelet.figurLage === 'jubel') window.sagJubel = true;
+            for (const p of spelet.staplar) window.bredder[p.b] = true;
             requestAnimationFrame(kolla); })()""")
         time.sleep(0.5)
         kolla(sida.evaluate('spelet.tillstand') == 'start', 'spelet börjar i startläget')
@@ -173,6 +174,8 @@ def main():
                  'kraschade inte' if tillstand == 'spelar' else 'kraschade sen'))
         if poang >= 3:
             kolla(sida.evaluate('window.sagJubel'), 'figuren jublar när rekordet slås')
+        bredder = sida.evaluate('Object.keys(window.bredder).map(Number).sort((a, b) => a - b)')
+        kolla(len(bredder) >= 2, 'staplarna är olika breda (%s)' % ', '.join(map(str, bredder)))
 
         # Sluta flaxa -> krasch -> kraschruta -> tillbaka till start
         sida.evaluate('window.botPa = false')
