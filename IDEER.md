@@ -55,8 +55,9 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [ ] **Olika breda** staplar som omväxling.
 - [ ] **Något att plocka**: en liten kloss eller stjärna i öppningen som
   ger extrapoäng.
-- [ ] **Ond keIWs** som fiende: samma klossar men svart-grå med röda ögon
-  (#1e1e24, #121216, ögon #e02424, ljus #484a52). Kan flyga emot en i
+- [ ] **Ond** (keIWs onda dubbelgångare) som fiende: samma kropp men
+  svart-grå med arga röda ögon som trappar ner mot mitten (#1e1e24,
+  #121216, ögon #e02424, ljus #484a52). Kan flyga emot en i
   öppningarna i senare banor, eller vara en egen figur att välja.
 - [ ] Bakgrunder från keIWs-animationerna, t.ex. **vindkraftverk** som snurrar
   långt bak, eller kyltorn på en bana.
