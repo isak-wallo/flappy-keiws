@@ -52,7 +52,9 @@ def main():
         sys.exit(1)
     d = json.load(open(sys.argv[1], encoding='utf-8'))
     a = d['animationer']
-    anim = {'idle': a['idle'], 'vinka': a['vinka'], 'jubel': a['jubel_hoger']}
+    # Jubel i flykten: det större flygjublet om exporten har det
+    anim = {'idle': a['idle'], 'vinka': a['vinka'],
+            'jubel': a.get('jubel_flyg_hoger', a['jubel_hoger'])}
     for namn in ('somnar', 'sover', 'vaknar'):     # sömnen, om exporten har den
         if namn in a:
             anim[namn] = a[namn]

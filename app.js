@@ -61,7 +61,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const START_Y = 280;             // där figuren svävar innan man börjar
     const STEG = 1 / 120;            // fast tidssteg för fysiken (s)
     const VISA_KRASCH_EFTER = 0.5;   // s efter landning innan rutan visas
-    const REKORD_JUBEL = 2;          // så många gånger figuren jublar när rekordet slås
+    const REKORD_JUBEL = 1;          // så många gånger figuren jublar när rekordet slås
     const OMSTART_SPARR = 400;       // ms innan man kan starta om efter krasch
     const BAST_NYCKEL = 'flappy-keiws-bast';
 
