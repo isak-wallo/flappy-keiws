@@ -5,14 +5,17 @@ poäng, krasch och rekord. Språk i appen och i koden (kommentarer, namn,
 commit-meddelanden) är **svenska**. Håll det så.
 
 Lokala, privata anteckningar (om de finns) ligger i `CLAUDE.local.md`, som
-inte checkas in.
+inte checkas in. **Idéer och planer** står i `IDEER.md` — läs den när
+det ska byggas vidare, bocka av det som blir gjort och skriv in nya idéer
+där.
 
 ## Git: jobba alltid direkt mot `main`
 
 - Gör alla ändringar direkt på `main`. **Skapa aldrig nya grenar** och inga
   pull requests om det inte uttryckligen efterfrågas.
-- När en ändring är klar: bumpa `VERSION` i `sw.js`, commit och
-  `git push origin main` direkt — det är så den når GitHub Pages.
+- När en ändring är klar: kör `python verktyg/testa.py`, bumpa `VERSION` i
+  `sw.js` (om appens filer ändrats), commit och `git push origin main`
+  direkt — det är så den når GitHub Pages.
 - Repot är publikt: länka inte till privata repon i README, kommentarer
   eller commit-meddelanden.
 
@@ -48,6 +51,8 @@ inte checkas in.
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
+| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, krasch och omstart, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
+| `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
 
 ## Stilregler för figurerna
 
@@ -84,8 +89,8 @@ rakt under främre ögat, armarna hamnar aldrig över kroppen.
 - **Ny SW-version** laddas in direkt i startläget, annars först när man
   kommer tillbaka till start (`laddaOmSen`) — aldrig mitt i en runda.
 - **Testkrok:** med `?test` i adressen finns `window.spelet` (tillstånd,
-  poäng, figur, staplar, bana) så att ett testskript (t.ex. Playwright) kan
-  läsa läget och spela.
+  poäng, figur, staplar, bana) så att `verktyg/testa.py` kan läsa läget och
+  spela.
 
 ## Bygga ut (förberett)
 
