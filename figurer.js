@@ -55,7 +55,7 @@ function figurUrExport(d) {
 const FIGURER = {
     // keIWs: fyrkantig kropp (160 px), armar, ben och ögon är lika stora
     // klossar (36 px) som svävar med 8 px mellanrum. Från sidan tittar den
-    // åt höger, dit den flyger. Bortre arm och ben i skugga.
+    // åt höger, dit den flyger. Armen och benet framåt i skugga.
     keiws: Object.assign(figurUrExport(FIGUR_DATA.keiws), {
         namn: 'keIWs',
         skala: 0.24,
