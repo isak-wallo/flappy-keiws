@@ -834,7 +834,8 @@ document.addEventListener('DOMContentLoaded', () => {
         for (const p of staplar) ritaStapel(p);
         ritaMark();
         ritaFigur(fig.y);
-        if (tillstand !== 'start') {
+        // Poängen överst, men inte bakom krasch- och pausrutan (där står den)
+        if (tillstand !== 'start' && ruta.classList.contains('dold')) {
             ritaPoang(poang, VARLD_B / 2, Math.max(vyY0, 0) + 40 + poangStuds(), 8);
         }
     }
