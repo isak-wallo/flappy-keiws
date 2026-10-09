@@ -10,7 +10,8 @@ finns window.spelet att läsa) och kontrollerar att:
     figuren jublar när rekordet slås,
   - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
   - versionen (cachens namn) syns i startrutan,
-  - figuren kraschar när boten slutar flaxa, kraschrutan visas och
+  - figuren kraschar när boten slutar flaxa (smäll, landar, blir yr),
+    kraschrutan visas och
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
@@ -126,7 +127,9 @@ def main():
         sida.add_init_script("localStorage.setItem('flappy-keiws-bast', '2')")
         sida.goto(url + '?test')
         sida.wait_for_function('window.spelet !== undefined', timeout=5000)
-        sida.evaluate("""window.sagJubel = false; window.bredder = {}; (function kolla() {
+        sida.evaluate("""window.sagJubel = false; window.bredder = {}; window.lagen = {};
+            (function kolla() {
+            window.lagen[spelet.figurLage] = true;
             if (spelet.figurLage === 'jubel') window.sagJubel = true;
             for (const p of spelet.staplar) window.bredder[p.b] = true;
             requestAnimationFrame(kolla); })()""")
@@ -190,6 +193,10 @@ def main():
         kolla(kraschad, 'figuren kraschar utan flax och kraschrutan visas')
         if kraschad:
             text = sida.inner_text('#ruta')
+            sida.wait_for_function("spelet.figurLage === 'yr'", timeout=3000)
+            lagen = sida.evaluate('window.lagen')
+            kolla(all(l in lagen for l in ('krock', 'landar', 'yr')),
+                  'figuren krockar, studsar mot marken och blir yr')
             kolla('Poäng' in text, 'kraschrutan visar poängen')
             if poang >= 10:
                 kolla(sida.is_visible('#ruta svg.medalj')

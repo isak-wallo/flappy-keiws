@@ -247,6 +247,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             return null;
         }
+        if (tillstand === 'krasch') return krockRuta();
         if (tillstand !== 'start') return null;
         if (vaknarVid !== null) {
             return { lage: 'vaknar', rekt: rutaI('vaknar', (tid - vaknarVid) * 1000, false) };
@@ -271,6 +272,23 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
         return { lage: 'fram', rekt: figur.vrid[0] };
+    }
+
+    // Krocken: smäll, fladdrar medan den faller, studsar mot marken och blir
+    // sedan yr. Smällen spelas klart även om den landar direkt.
+    function krockRuta() {
+        const a = figur.animationer;
+        if (!a || !a.krock || !a.faller || !a.landar || !a.yr) return null;
+        const krockSlut = lageBorjade + animMs('krock') / 1000;
+        const landat = landadTid === null ? Infinity : Math.max(tid - landadTid, krockSlut);
+        if (tid < landat) {
+            const ms = (tid - lageBorjade) * 1000;
+            return ms < animMs('krock') ? { lage: 'krock', rekt: rutaI('krock', ms, false) }
+                : { lage: 'faller', rekt: rutaI('faller', ms - animMs('krock'), true) };
+        }
+        const ms = (tid - landat) * 1000;
+        return ms < animMs('landar') ? { lage: 'landar', rekt: rutaI('landar', ms, false) }
+            : { lage: 'yr', rekt: rutaI('yr', ms - animMs('landar'), true) };
     }
 
     // Ritar en färdig ruta ur exporten: [x0, y0, x1, y1, färg, del]
@@ -702,6 +720,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function krascha() {
         tillstand = 'krasch';
+        lageBorjade = tid;
         landadTid = null;
         if (fig.v < 0) fig.v = 0;
         if (poang > bast) {

@@ -95,6 +95,8 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs somnar på startskärmen efter ca 25 s utan tryck och sover med
   Z-klossar. Ett tryck: vaknar och ruskar igång sig (0,5 s, tryck under
   tiden räknas inte), vrider sig och flyger iväg av sig själv.
+- [x] Krock ur figurens export: smäll med stänk, fladdrar i fallet,
+  studsar mot marken och blir yr med stjärnor runt huvudet.
 - [x] Olika breda staplar (40–96) från fjärde stapeln.
 - [x] Glädjeskuttet vid nytt rekord är figurens egen jubelanimation ur
   exporten.

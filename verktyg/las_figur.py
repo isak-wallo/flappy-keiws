@@ -4,7 +4,7 @@ Exporten har figuren som rektanglar [x0, y0, x1, y1, färg, del] för varje
 läge och animationsruta, relativt kroppens övre vänstra hörn. Spelet tar
 lägena där figuren vrider sig åt höger (framifrån -> från sidan), blink för
 dem, animationerna där den står framifrån (idle, vinka, somnar, sover,
-vaknar) och jublar åt höger,
+vaknar), jublar och krockar åt höger (krock, faller, landar, yr),
 och Ond (samma lägen med egna färger och arga ögon).
 
     python verktyg/las_figur.py SÖKVÄG/TILL/keiws.json
@@ -56,6 +56,9 @@ def main():
     for namn in ('somnar', 'sover', 'vaknar'):     # sömnen, om exporten har den
         if namn in a:
             anim[namn] = a[namn]
+    for namn in ('krock', 'faller', 'landar', 'yr'):  # krocken, åt höger
+        if namn + '_hoger' in a:
+            anim[namn] = a[namn + '_hoger']
     keiws = figur(d['farger'], d['lagen'], anim)
     ond = figur(d['farger_ond'], d['lagen_ond'], {})
     js = ('// Figurerna som rektanglar [x0, y0, x1, y1, färg, del], relativt kroppens\n'
