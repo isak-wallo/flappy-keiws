@@ -69,3 +69,13 @@ html, body {
     font-size: 15px;
     color: #5f8292;
 }
+
+/* Versionen, litet i nedre högra hörnet av startrutan */
+#ruta p.version {
+    position: absolute;
+    right: 6px;
+    bottom: 2px;
+    margin: 0;
+    font-size: 11px;
+    color: #9db4be;
+}

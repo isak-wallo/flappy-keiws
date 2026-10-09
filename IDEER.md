@@ -26,14 +26,11 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 
 ## 2. Spelkänsla
 
-- [ ] **Paus** när man byter app eller flik mitt i en runda (i dag kastas
-  man tillbaka mitt i luften). Visa "Paus – tryck för att fortsätta".
 - [ ] **"Redo?"-stund** innan första stapeln: figuren svävar på plats tills
   första trycket (finns delvis: startläget).
 - [ ] **Pixeltypsnitt** i textrutan, så att texten matchar siffrorna (egna
   bokstäver i 3×5 eller 5×7, ritade på canvas).
 - [ ] **Medaljer** i kraschrutan: brons 10, silver 25, guld 50.
-- [ ] **Liten visuell bekräftelse** när en stapel passeras (siffran studsar).
 - [ ] Justera fysiken efter mer spelande (`banor.js`: tyngd, flax, fart,
   öppning).
 
@@ -75,8 +72,6 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
   ljudfiler) för flax, poäng och krasch. Med av/på-knapp, av från början?
 - [ ] **Figurval**, om fler figurer dyker upp.
 - [ ] **Inställningar** (lite): lätt/normal, ljud av/på.
-- [ ] **Versionsnummer** litet i ett hörn av startrutan (samma som `VERSION`
-  i `sw.js`), så man ser att telefonen har senaste versionen.
 
 ## Teknik och arbetssätt
 
@@ -100,3 +95,7 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [x] keIWs flyger åt höger (sidovyn speglad), bestämt 2026-10-09.
 - [x] keIWs andas på startskärmen (kroppen sjunker 0–4 px, armarna hänger
   efter, blinkar) och jublar med armarna när man klarar en stapel.
+- [x] Magklossen under vänster öga (det inre när keIWs tittar åt höger).
+- [x] Paus när man byter app eller flik mitt i en runda.
+- [x] Poängsiffran studsar när man klarar en stapel.
+- [x] Versionsnummer i startrutans hörn.

@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let s = 1, vyB = VARLD_B, vyH = VARLD_H, vyX0 = 0, vyY0 = 0;
 
     // --- Spelets tillstånd: 'start' -> 'spelar' -> 'krasch' -> 'start' ---
+    // ('paus' när man lämnar appen mitt i en runda, tillbaka till 'spelar')
     let tillstand = 'start';
     let tid = 0;                     // s sedan sidan startade (för gungning m.m.)
     let rullat = 0;                  // hur långt banan rullat (för marken)
@@ -41,6 +42,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let rutaVisadVid = 0;            // performance.now() när kraschrutan visades
     let landadTid = null;            // s sedan figuren landade efter krasch
     let laddaOmSen = false;          // ny version finns: ladda om vid nästa start
+    let poangTid = 99;               // s sedan senaste poängen (siffran studsar)
+    let version = '';                // appens version (cachens namn), visas i startrutan
 
     const fig = {
         y: START_Y,
@@ -324,6 +327,17 @@ document.addEventListener('DOMContentLoaded', () => {
         '111101111101111', '111101111001111'
     ];
 
+    // Siffran hoppar upp en stund när man får poäng: [upp, s] per steg
+    const STUDS = [[-4, 0.05], [-8, 0.07], [-4, 0.05]];
+    function poangStuds() {
+        let t = poangTid;
+        for (const [dy, langd] of STUDS) {
+            if (t < langd) return dy;
+            t -= langd;
+        }
+        return 0;
+    }
+
     function ritaPoang(n, mittX, y, k) {
         const text = String(n);
         const b = text.length * 4 * k - k;
@@ -353,8 +367,18 @@ document.addEventListener('DOMContentLoaded', () => {
         ruta.innerHTML =
             '<h1>Flappy keIWs</h1>' +
             '<p>Tryck för att flyga</p>' +
-            (bast > 0 ? '<p class="liten">Bäst: ' + bast + '</p>' : '');
+            (bast > 0 ? '<p class="liten">Bäst: ' + bast + '</p>' : '') +
+            (version ? '<p class="version">' + version + '</p>' : '');
         ruta.classList.remove('dold');
+    }
+
+    function visaPausruta() {
+        ruta.innerHTML =
+            '<h1>Paus</h1>' +
+            '<p class="liten">Poäng: ' + poang + '</p>' +
+            '<p>Tryck för att fortsätta</p>';
+        ruta.classList.remove('dold');
+        rutaVisadVid = performance.now();
     }
 
     function visaKraschruta() {
@@ -410,11 +434,26 @@ document.addEventListener('DOMContentLoaded', () => {
         visaStartruta();
     }
 
+    // Pausa när man byter app eller flik mitt i en runda
+    function pausa() {
+        if (tillstand !== 'spelar') return;
+        tillstand = 'paus';
+        visaPausruta();
+    }
+
+    function fortsatt() {
+        tillstand = 'spelar';
+        gomRuta();
+        flaxa();
+    }
+
     function tryck() {
         if (tillstand === 'start') {
             borja();
         } else if (tillstand === 'spelar') {
             flaxa();
+        } else if (tillstand === 'paus') {
+            if (performance.now() - rutaVisadVid > OMSTART_SPARR) fortsatt();
         } else if (tillstand === 'krasch') {
             if (!ruta.classList.contains('dold') &&
                 performance.now() - rutaVisadVid > OMSTART_SPARR) {
@@ -425,7 +464,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function uppdatera(dt) {
         tid += dt;
+        if (tillstand === 'paus') return;   // allt står still
         fig.flaxTid += dt;
+        poangTid += dt;
         fig.jubelTid += dt;
 
         if (tillstand === 'start') {
@@ -456,6 +497,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     p.passerad = true;
                     poang++;
                     fig.jubelTid = 0;
+                    poangTid = 0;
                 }
                 for (const del of stapelDelar(p)) {
                     if (overlappar(traff, del)) { krascha(); return; }
@@ -493,7 +535,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ritaMark();
         ritaFigur(fig.y);
         if (tillstand !== 'start') {
-            ritaPoang(poang, VARLD_B / 2, Math.max(vyY0, 0) + 40, 8);
+            ritaPoang(poang, VARLD_B / 2, Math.max(vyY0, 0) + 40 + poangStuds(), 8);
         }
     }
 
@@ -584,6 +626,11 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
+    document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') pausa();
+    });
+    window.addEventListener('pagehide', pausa);
+
     // Ingen zoom, ingen högerklicksmeny
     document.addEventListener('gesturestart', e => e.preventDefault());
     document.addEventListener('contextmenu', e => e.preventDefault());
@@ -597,6 +644,7 @@ document.addEventListener('DOMContentLoaded', () => {
         window.spelet = {
             get tillstand() { return tillstand; },
             get poang() { return poang; },
+            get version() { return version; },
             get fig() { return fig; },
             get staplar() { return staplar; },
             bana, FIGUR_X, MARK_Y
@@ -606,6 +654,19 @@ document.addEventListener('DOMContentLoaded', () => {
     layout();
     visaStartruta();
     requestAnimationFrame(frame);
+
+    // Versionen = namnet på service workerns cache (flappy-keiws-v8 -> v8).
+    // Gamla cacher tas bort när en ny version tar över, så den högsta är den
+    // som körs.
+    if ('caches' in window) {
+        caches.keys().then(namn => {
+            const nr = namn.map(n => /^flappy-keiws-v(\d+)$/.exec(n))
+                .filter(Boolean).map(m => +m[1]);
+            if (!nr.length) return;
+            version = 'v' + Math.max(...nr);
+            if (tillstand === 'start') visaStartruta();
+        }).catch(() => {});
+    }
 
     // Service worker: ny version laddas in direkt om man inte spelar,
     // annars när man kommer tillbaka till startläget.

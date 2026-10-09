@@ -33,8 +33,14 @@ där.
 - Tryck/klick/mellanslag/pil upp/W/Enter = flaxa. Lägen: `start` (figuren
   gungar, ruta "Tryck för att flyga") → `spelar` → `krasch` (figuren faller
   till marken, blundar; efter `VISA_KRASCH_EFTER` visas poäng/bäst) → tryck
-  (efter `OMSTART_SPARR`) → `start`.
-- Poäng i egna 3×5-pixelsiffror på canvasen; bästa resultatet i
+  (efter `OMSTART_SPARR`) → `start`. Byter man app eller flik under
+  `spelar` blir det `paus` (allt står still, ruta "Paus"), ett tryck
+  fortsätter med ett flax.
+- Versionen (t.ex. "v9") står litet i startrutans hörn. Den läses från
+  service workerns cachenamn (`caches.keys()`), så den behöver bara
+  bumpas i `sw.js`.
+- Poäng i egna 3×5-pixelsiffror på canvasen (siffran studsar till vid
+  varje poäng, `STUDS`/`poangStuds`); bästa resultatet i
   `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM.
 - Lugna, lite dova pixelfärger (himmel i band, moln, två lager kullar,
   raka staplar i olika gröna nyanser, sandmark).
@@ -51,7 +57,7 @@ där.
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
-| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, krasch och omstart, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
+| `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
 | `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
 
 ## Stilregler för figurerna

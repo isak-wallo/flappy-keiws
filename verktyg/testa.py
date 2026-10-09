@@ -7,6 +7,8 @@ finns window.spelet att läsa) och kontrollerar att:
   - startrutan visas,
   - en bot som läser spelets läge klarar sig förbi några staplar
     (banan går att spela, poängen räknas),
+  - spelet pausar när man lämnar sidan och fortsätter efter ett tryck,
+  - versionen (cachens namn) syns i startrutan,
   - figuren kraschar när boten slutar flaxa, kraschrutan visas och
     man kommer tillbaka till start,
   - sidan också går att öppna i datorformat (bred skärm).
@@ -55,6 +57,16 @@ BOT = r"""
   loop();
 }
 """
+
+# Låtsas att sidan göms eller visas igen (som när man byter app)
+DOLJ = r"""() => {
+  Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+  document.dispatchEvent(new Event('visibilitychange'));
+}"""
+VISA = r"""() => {
+  delete document.visibilityState;
+  document.dispatchEvent(new Event('visibilitychange'));
+}"""
 
 
 class TystHandler(http.server.SimpleHTTPRequestHandler):
@@ -116,6 +128,22 @@ def main():
         sida.keyboard.press('Space')
         time.sleep(0.3)
         kolla(sida.evaluate('spelet.tillstand') == 'spelar', 'ett tryck startar spelet')
+
+        # Paus: låtsas att sidan göms (byter app), figuren ska stå still
+        sida.evaluate(DOLJ)
+        time.sleep(0.1)
+        y1 = sida.evaluate('spelet.fig.y')
+        time.sleep(0.5)
+        y2 = sida.evaluate('spelet.fig.y')
+        kolla(sida.evaluate('spelet.tillstand') == 'paus' and y1 == y2
+              and 'Paus' in sida.inner_text('#ruta'),
+              'spelet pausar när sidan göms och figuren står still')
+        bild(sida, '1b-paus.png')
+        sida.evaluate(VISA)
+        sida.keyboard.press('Space')
+        time.sleep(0.2)
+        kolla(sida.evaluate('spelet.tillstand') == 'spelar' and not sida.is_visible('#ruta'),
+              'ett tryck efter paus fortsätter spelet')
         slut = time.time() + a.sekunder
         while time.time() < slut and sida.evaluate('spelet.tillstand') == 'spelar':
             time.sleep(0.5)
@@ -145,6 +173,13 @@ def main():
             sida.keyboard.press('Space')
             time.sleep(0.2)
             kolla(sida.evaluate('spelet.tillstand') == 'start', 'tryck efter krasch går tillbaka till start')
+
+        # Version: andra laddningen har en cache, då står versionen i startrutan
+        sida.reload()
+        sida.wait_for_function('window.spelet && spelet.version !== ""', timeout=5000)
+        v = sida.evaluate('spelet.version')
+        kolla(v in sida.inner_text('#ruta'), 'versionen (%s) syns i startrutan' % v)
+        bild(sida, '5-version.png')
 
         kolla(not jsfel, 'inga JavaScript-fel' + (': ' + ' | '.join(jsfel) if jsfel else ''))
 
