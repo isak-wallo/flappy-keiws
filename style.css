@@ -36,8 +36,8 @@ html, body {
 #ruta {
     position: absolute;
     left: 50%;
-    top: 30%;
-    transform: translate(-50%, -50%);
+    top: 30%;                         /* sätts av placeraRuta i app.js */
+    transform: translate(-50%, -100%);   /* underkanten på `top` */
     min-width: 60%;
     padding: 16px 20px;
     background-color: rgba(250, 252, 248, 0.92);

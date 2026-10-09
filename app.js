@@ -562,6 +562,7 @@ document.addEventListener('DOMContentLoaded', () => {
             (bast > 0 ? '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>' : '') +
             (version ? '<p class="version">' + pixeltext(version, 1) + '</p>' : '');
         ruta.classList.remove('dold');
+        placeraRuta();
     }
 
     function visaPausruta() {
@@ -570,6 +571,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '<p class="liten">' + pixeltext('Poäng: ' + poang, TEXT) + '</p>' +
             '<p>' + pixeltext('Tryck för att fortsätta', TEXT) + '</p>';
         ruta.classList.remove('dold');
+        placeraRuta();
         rutaVisadVid = performance.now();
     }
 
@@ -625,6 +627,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         : '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>') +
             '<p class="liten">' + pixeltext('Tryck för att spela igen', TEXT) + '</p>';
         ruta.classList.remove('dold');
+        placeraRuta();
         rutaVisadVid = performance.now();
     }
 
@@ -830,7 +833,27 @@ document.addEventListener('DOMContentLoaded', () => {
         vyX0 = (VARLD_B - vyB) / 2;
         // Extra höjd (långa telefoner) blir mest himmel, lite mark
         vyY0 = (VARLD_H - vyH) * 0.7;
+        placeraRuta();
         rita();
+    }
+
+    // Textrutan står med underkanten strax ovanför figurens högsta punkt på
+    // startskärmen (armen när den vinkar), hur många rader texten än blir.
+    const FIGUR_TOPP = (() => {
+        let topp = 0;
+        for (const namn of figur.start || []) {
+            for (const r of figur.animationer[namn]) {
+                for (const kloss of r.rekt) topp = Math.min(topp, kloss[1]);
+            }
+        }
+        return START_Y - 3 + (topp - figur.mitt[1]) * figur.skala;   // 3 = svävandet
+    })();
+
+    function placeraRuta() {
+        const dpr = window.devicePixelRatio || 1;
+        const botten = (FIGUR_TOPP - 12 - vyY0) * s / dpr;   // 12 enheter luft
+        // ... men aldrig så högt att rutan går utanför skärmen (låga skärmar)
+        ruta.style.top = Math.round(Math.max(botten, ruta.offsetHeight + 8)) + 'px';
     }
 
     let layoutVantar = false;
