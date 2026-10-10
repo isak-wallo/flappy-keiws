@@ -159,6 +159,32 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   poäng, figur, staplar, bana) så att `verktyg/testa.py` kan läsa läget och
   spela.
 
+## Bra att veta (erfarenheter)
+
+- Isak spelar på telefonen. Säger han att något "inte fungerar", fråga
+  först vilken version som står i hörnet. En installerad app kan behöva
+  stängas och öppnas en eller två gånger innan den nya versionen syns.
+- Testerna ser inte hur det ser ut. Vid visuella ändringar: ta skärmbilder
+  med Playwright (importera `starta_server`, `starta_webblasare` och `BOT`
+  ur `verktyg/testa.py`) och titta på dem. Guldblinket i poängen vid
+  rekord kontrolleras inte av testerna.
+- Pixeltypsnittet saknar bland annat parenteser (de blir `?`). Skriv
+  texterna utan dem, eller lägg till tecknet i `typsnitt.js`.
+- `testa.py` skriver till Windows-konsolen (cp1252): skriv inte ut emoji
+  eller andra tecken utanför den i testernas texter.
+- Figurens animationer ska helst hålla sig inom y ≥ -92 på startskärmen
+  (Z:na när den sover); rutan placeras ovanför den högsta punkten
+  (`FIGUR_TOPP`).
+- Beslut som Isak tagit:
+  - Jubel vid rekord även när rekordet är 0 (t.ex. efter nollställning),
+    alltså redan vid första stapeln.
+  - Tidsvalet i menyn har alla fem lägena (Auto, Dag, Skymning, Natt,
+    Gryning), inget "snabb start"-val.
+  - Menyknappen är bara texten "Meny". Flera kugghjul provades (grova
+    pixelkuggar såg ut som blommor, slätt passade inte stilen) innan
+    kugghjulet togs bort.
+  - Högst ca fyra val i menyn.
+
 ## Bygga ut (förberett)
 
 - **Ny figur**: nytt objekt i `FIGURER` (gärna `figurUrExport` på en figur i

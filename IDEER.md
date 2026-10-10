@@ -12,6 +12,12 @@ minst 8 px utanför kroppen och aldrig över den. Lägen i jämna px.
 Nya animationer görs i figurens eget ritverktyg, exporteras och läses in
 med `verktyg/las_figur.py`.
 
+- [ ] **Förvånad vid nära ögat**: när figuren klarar en stapel med väldigt
+  liten marginal rycker den till med ett gult utropstecken. Exporten har
+  `forvanad` (8 rutor, framifrån, högsta punkt y = -92), men i flykten
+  behövs en sidovariant åt höger, som ska beställas i figurens export.
+- [ ] Exportens `jubel` (sidan åt vänster) används inte. Spelet tar
+  `jubel_flyg_hoger` i flykten och `jubel_fram` på startskärmen.
 
 ## 2. Spelkänsla
 
