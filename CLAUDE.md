@@ -30,7 +30,9 @@ där.
   byts bara när Isak säger "släpp": `python verktyg/slapp.py --skarpt`
   testar, publicerar appens filer (`ASSETS` + `sw.js`) från `origin/main`
   med nästa släppnummer som VERSION (v1, v2 ...) och taggar committen
-  `slapp-N`. `python verktyg/slapp.py` visar vad som är släppt och vad som
+  `slapp-N`. Är spelet oförändrat (bara admin, t.ex. sökmotortexter) släpps
+  det med `--skarpt --samma-version`: numret står kvar, taggen blir
+  `slapp-N.1`, `slapp-N.2` .... `python verktyg/slapp.py` visar vad som är släppt och vad som
   är nytt sedan dess. Kräver `npx wrangler login` en gång.
 - **Inget byggsteg, inga dependencies** — ren vanilla JS/CSS/HTML.
 - **Bumpa `VERSION` i `sw.js` vid varje ändring** (`v38-test` -> `v39-test`, behåll `-test`), annars fastnar installerade
