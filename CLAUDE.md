@@ -161,7 +161,7 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
 
 ## Bra att veta (erfarenheter)
 
-- Isak spelar på telefonen. Säger han att något "inte fungerar", fråga
+- Isak spelar på telefonen. Om Isak säger att något "inte fungerar", fråga
   först vilken version som står i hörnet. En installerad app kan behöva
   stängas och öppnas en eller två gånger innan den nya versionen syns.
 - Testerna ser inte hur det ser ut. Vid visuella ändringar: ta skärmbilder
