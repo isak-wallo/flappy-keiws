@@ -15,13 +15,23 @@ där.
   pull requests om det inte uttryckligen efterfrågas.
 - När en ändring är klar: kör `python verktyg/testa.py`, bumpa `VERSION` i
   `sw.js` (om appens filer ändrats), commit och `git push origin main`
-  direkt — det är så den når GitHub Pages.
+  direkt — det är så den når GitHub Pages (testmiljön).
+- **Släpp aldrig till flappy.keiws.com utan att Isak uttryckligen sagt
+  till** (se Hosting).
 - Repot är publikt: länka inte till privata repon i README, kommentarer
   eller commit-meddelanden.
 
 ## Hosting
 
-- GitHub Pages från `main` (rot): https://isak-wallo.github.io/flappy-keiws/
+- **Test:** GitHub Pages från `main` (rot):
+  https://isak-wallo.github.io/flappy-keiws/ — uppdateras vid varje push,
+  versionen i hörnet är `VERSION` i `sw.js` (v36, v37 ...).
+- **Skarpt:** https://flappy.keiws.com (Cloudflare, `wrangler.jsonc`) —
+  byts bara när Isak säger "släpp": `python verktyg/slapp.py --skarpt`
+  testar, publicerar appens filer (`ASSETS` + `sw.js`) från `origin/main`
+  med nästa släppnummer som VERSION (v1, v2 ...) och taggar committen
+  `slapp-N`. `python verktyg/slapp.py` visar vad som är släppt och vad som
+  är nytt sedan dess. Kräver `npx wrangler login` en gång.
 - **Inget byggsteg, inga dependencies** — ren vanilla JS/CSS/HTML.
 - **Bumpa `VERSION` i `sw.js` vid varje ändring**, annars fastnar installerade
   appar på gammal cache. Nya filer måste också läggas i `ASSETS` i `sw.js`.
@@ -84,6 +94,8 @@ där.
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
+| `verktyg/slapp.py` | Släpper en skarp version på flappy.keiws.com (`--skarpt`), eller visar vad som är släppt. Se Hosting. |
+| `wrangler.jsonc` | Cloudflare-inställningen för flappy.keiws.com (används av `slapp.py`). |
 | `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, medalj, nattbanan och att klockan styr färgerna, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
 | `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
 

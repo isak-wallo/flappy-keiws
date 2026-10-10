@@ -1,0 +1,11 @@
+// Skarpa versionen på flappy.keiws.com (Cloudflare Workers med statiska
+// filer). Publiceras bara med verktyg/slapp.py, som bygger webb/ med appens
+// filer (ASSETS i sw.js) från den pushade koden.
+{
+  "name": "flappy-keiws",
+  "compatibility_date": "2026-10-01",
+  "assets": { "directory": "./webb" },
+  "routes": [
+    { "pattern": "flappy.keiws.com", "custom_domain": true }
+  ]
+}
