@@ -15,7 +15,7 @@ finns window.spelet att läsa) och kontrollerar att:
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
-  - menyn (kugghjulet) öppnas, tiden på dygnet går att välja och sparas,
+  - menyn (knappen Meny) öppnas, tiden på dygnet går att välja och sparas,
     rekordet går att nollställa (efter en fråga),
   - figuren somnar på startskärmen, vaknar och ruskar på sig vid ett tryck
     och flyger sedan iväg av sig själv,
@@ -258,7 +258,7 @@ def main():
               'klockan styr färgerna (dag 12, skymning 19.30, natt 23, gryning 7)')
         kolla(not nattfel, 'inga JavaScript-fel på natten' + (': ' + ' | '.join(nattfel) if nattfel else ''))
 
-        # --- Menyn: kugghjulet, tid på dygnet, nollställ rekord ---
+        # --- Menyn: knappen, tid på dygnet, nollställ rekord ---
         meny = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
         menyfel = []
         meny.on('pageerror', lambda e: menyfel.append(str(e)))
@@ -267,11 +267,11 @@ def main():
         meny.goto(url + '?test')
         meny.wait_for_function('window.spelet !== undefined', timeout=5000)
         time.sleep(0.3)
-        kolla(meny.is_visible('#menyknapp'), 'kugghjulet syns på startskärmen')
+        kolla(meny.is_visible('#menyknapp'), 'menyknappen syns på startskärmen')
         meny.click('#menyknapp')
         time.sleep(0.2)
         kolla(meny.evaluate('spelet.menyOppen') and meny.evaluate('spelet.tillstand') == 'start'
-              and 'Tid: Auto' in meny.inner_text('#ruta'), 'kugghjulet öppnar menyn (spelet startar inte)')
+              and 'Tid: Auto' in meny.inner_text('#ruta'), 'menyknappen öppnar menyn (spelet startar inte)')
         bild(meny, '8-meny.png')
         meny.click('[data-val=tid]')       # Auto -> Dag
         meny.click('[data-val=tid]')       # Dag -> Skymning
@@ -297,7 +297,7 @@ def main():
         meny.keyboard.press('Space')
         time.sleep(0.3)
         kolla(meny.evaluate('spelet.tillstand') == 'spelar' and not meny.is_visible('#menyknapp'),
-              'spelet startar som vanligt, kugghjulet göms')
+              'spelet startar som vanligt, menyknappen göms')
         kolla(not menyfel, 'inga JavaScript-fel i menyn' + (': ' + ' | '.join(menyfel) if menyfel else ''))
 
         # --- Somnar och vaknar (?somna=1: somnar efter 1 s i stället för 25) ---

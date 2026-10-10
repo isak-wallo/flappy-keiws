@@ -10,30 +10,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const ruta = document.getElementById('ruta');
     const menyknapp = document.getElementById('menyknapp');
 
-    // Menyknappen: ett kugghjul (12 kuggar) i ett rutnät om 21×21 pixlar (lika högt som M:et i "Meny"),
-    // och texten "Meny". Kugghjulet räknas fram som en form (kuggar som
-    // smalnar av utåt, runt hål) och ritas sedan i pixlar.
-    menyknapp.innerHTML = (() => {
-        const N = 21, n = 12, yttre = 11.5, inre = 9.2, topp = 0.38, rot = 0.58, hal = 4.6;
-        function iKugghjulet(x, y) {               // x, y i 0..24
-            const dx = x - 12, dy = y - 12, r = Math.hypot(dx, dy);
-            if (r <= hal || r > yttre) return false;
-            if (r <= inre) return true;
-            const a = ((Math.atan2(dx, -dy) / (2 * Math.PI) * n) % 1 + 1) % 1;
-            const t = (r - inre) / (yttre - inre);    // 0 vid kuggens rot, 1 i toppen
-            return Math.min(a, 1 - a) <= rot / 2 + (topp - rot) / 2 * t;
-        }
-        let rutor = '';
-        for (let y = 0; y < N; y++) {
-            for (let x = 0; x < N; x++) {
-                if (iKugghjulet((x + 0.5) * 24 / N, (y + 0.5) * 24 / N)) {
-                    rutor += '<rect x="' + x + '" y="' + y + '" width="1" height="1"/>';
-                }
-            }
-        }
-        return '<svg width="21" height="21" viewBox="0 0 ' + N + ' ' + N +
-            '" shape-rendering="crispEdges" fill="currentColor">' + rutor + '</svg>' + pixeltext('Meny', 3);
-    })();
+    // Menyknappen: texten "Meny" i pixeltypsnittet.
+    menyknapp.innerHTML = pixeltext('Meny', 3);
 
     // --- Val (blir inställningar längre fram) ---
     const figur = FIGURER.keiws;
@@ -687,7 +665,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ------------------------------------------------------------------
-    // Menyn (kugghjulet på startskärmen): tid på dygnet och nollställ rekord
+    // Menyn (knappen Meny på startskärmen): tid på dygnet och nollställ rekord
     // ------------------------------------------------------------------
 
     let menyOppen = false;

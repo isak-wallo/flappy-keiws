@@ -94,28 +94,20 @@ html, body {
     margin-right: 8px;
 }
 
-/* Menyknappen (bara på startskärmen): kugghjul + "Meny" i en knapp i
-   samma stil som textrutan */
+/* Menyknappen (bara på startskärmen): "Meny" i en knapp i samma stil som
+   textrutan */
 #menyknapp {
     position: absolute;
     top: calc(env(safe-area-inset-top, 0px) + 12px);
     right: 12px;
-    padding: 7px 12px 7px 9px;
+    padding: 7px 12px;
     display: flex;
-    align-items: flex-start;  /* kugghjulet i jämnhöjd med M:et (y:et sticker ner) */
-    gap: 6px;
     background-color: rgba(250, 252, 248, 0.92);
     border: 3px solid #5f8292;
     box-shadow: 4px 4px 0 rgba(47, 63, 76, 0.35);
     color: #2f3f4c;
     font-size: 0;             /* "Meny" är pixeltext */
     line-height: 0;
-}
-
-/* Kugghjulet: en textpixel ner, i jämnhöjd med M:et (typsnittet har en
-   tom rad överst för prickarna på åäö) */
-#menyknapp > svg {
-    margin-top: 3px;
 }
 
 #menyknapp.dold {

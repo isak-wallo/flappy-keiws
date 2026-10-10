@@ -97,7 +97,7 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
   Senare kanske med en bild.
 - [x] Nytt rekord firas: dubbelt jubel i flykten, poängen blinkar i guld,
   och keIWs jublar framifrån med konfetti på startskärmen.
-- [x] Meny (kugghjulet på startskärmen): tid på dygnet (auto eller fast)
+- [x] Meny (knappen Meny på startskärmen): tid på dygnet (auto eller fast)
   och nollställ rekord.
 - [x] Krock ur figurens export: smäll med stänk, fladdrar i fallet,
   studsar mot marken och blir yr med stjärnor runt huvudet.

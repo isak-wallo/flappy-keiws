@@ -29,7 +29,7 @@ där.
 ## Vad spelet gör
 
 - **Stående**, en figur (`keiws`), inga ljud.
-- **Menyn**: kugghjulet (`#menyknapp`, bara på startskärmen) öppnar en
+- **Menyn**: knappen "Meny" (`#menyknapp`, bara på startskärmen) öppnar en
   meny i textrutan (`visaMeny`, `tryckIMeny`, `menyOppen`; rutan blir
   tryckbar med klassen `meny`). Val: **Tid** (Auto/Dag/Skymning/Natt/
   Gryning, `TIDER`, sparas i `flappy-keiws-tid`, en fast tid låtsas vara
