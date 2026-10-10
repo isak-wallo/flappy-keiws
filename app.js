@@ -1148,10 +1148,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // som körs.
     if ('caches' in window) {
         caches.keys().then(namn => {
-            const nr = namn.map(n => /^flappy-keiws-v(\d+)$/.exec(n))
-                .filter(Boolean).map(m => +m[1]);
-            if (!nr.length) return;
-            version = 'v' + Math.max(...nr);
+            // v38-test på testmiljön (GitHub Pages), v1, v2 ... när den är släppt
+            const v = namn.map(n => /^flappy-keiws-v(\d+)(-test)?$/.exec(n)).filter(Boolean)
+                .sort((a, b) => b[1] - a[1])[0];
+            if (!v) return;
+            version = 'v' + v[1] + (v[2] || '');
             if (tillstand === 'start' && !menyOppen) visaStartruta();
         }).catch(() => {});
     }

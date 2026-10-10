@@ -1,7 +1,7 @@
 """Släpper en skarp version på flappy.keiws.com.
 
 GitHub Pages (https://isak-wallo.github.io/flappy-keiws/) är testmiljön och
-uppdateras vid varje push, med VERSION i sw.js (v36, v37 ...). Den skarpa
+uppdateras vid varje push, med VERSION i sw.js (v38-test, v39-test ...). Den skarpa
 versionen på flappy.keiws.com byts bara när det här skriptet körs med
 --skarpt, och får då nästa släppnummer: v1, v2 ... Varje släpp märks med en
 tagg i git (slapp-1, slapp-2 ...) på den commit som släpptes.
@@ -9,7 +9,7 @@ tagg i git (slapp-1, slapp-2 ...) på den commit som släpptes.
 Skriptet tar appens filer (ASSETS i sw.js, plus sw.js) från den pushade
 koden, alltså samma som ligger på GitHub Pages, inte från arbetskopian. I
 den släppta sw.js byts VERSION mot släppnumret, så att startrutan visar t.ex.
-v1 och installerade appar hämtar den nya versionen. Inget annat i repot
+v1 i stället för v38-test, och installerade appar hämtar den nya versionen. Inget annat i repot
 publiceras.
 
     python verktyg/slapp.py            # visar vad som är släppt och vad som är nytt
@@ -39,7 +39,7 @@ def slapp():
 
 
 def version(ref):
-    return re.search(r"const VERSION = '(v\d+)'", git('show', ref + ':sw.js')).group(1)
+    return re.search(r"const VERSION = '(v\d+(?:-test)?)'", git('show', ref + ':sw.js')).group(1)
 
 
 def status():
@@ -68,7 +68,7 @@ def bygg(nr):
     with open(os.path.join(WEBB, 'sw.js'), encoding='utf-8') as f:
         text = f.read()
     with open(os.path.join(WEBB, 'sw.js'), 'w', encoding='utf-8', newline='\n') as f:
-        f.write(re.sub(r"const VERSION = 'v\d+'", "const VERSION = 'v%d'" % nr, text, count=1))
+        f.write(re.sub(r"const VERSION = 'v\d+(?:-test)?'", "const VERSION = 'v%d'" % nr, text, count=1))
 
 
 def skarpt():

@@ -25,7 +25,7 @@ där.
 
 - **Test:** GitHub Pages från `main` (rot):
   https://isak-wallo.github.io/flappy-keiws/ — uppdateras vid varje push,
-  versionen i hörnet är `VERSION` i `sw.js` (v36, v37 ...).
+  versionen i hörnet är `VERSION` i `sw.js` (v38-test, v39-test ...).
 - **Skarpt:** https://flappy.keiws.com (Cloudflare, `wrangler.jsonc`) —
   byts bara när Isak säger "släpp": `python verktyg/slapp.py --skarpt`
   testar, publicerar appens filer (`ASSETS` + `sw.js`) från `origin/main`
@@ -33,7 +33,7 @@ där.
   `slapp-N`. `python verktyg/slapp.py` visar vad som är släppt och vad som
   är nytt sedan dess. Kräver `npx wrangler login` en gång.
 - **Inget byggsteg, inga dependencies** — ren vanilla JS/CSS/HTML.
-- **Bumpa `VERSION` i `sw.js` vid varje ändring**, annars fastnar installerade
+- **Bumpa `VERSION` i `sw.js` vid varje ändring** (`v38-test` -> `v39-test`, behåll `-test`), annars fastnar installerade
   appar på gammal cache. Nya filer måste också läggas i `ASSETS` i `sw.js`.
 
 ## Vad spelet gör
@@ -62,7 +62,7 @@ där.
   (efter `OMSTART_SPARR`) → `start`. Byter man app eller flik under
   `spelar` blir det `paus` (allt står still, ruta "Paus"), ett tryck
   fortsätter med ett flax.
-- Versionen (t.ex. "v9") står litet i startrutans hörn. Den läses från
+- Versionen (t.ex. "v38-test" på testmiljön, "v1" skarpt) står litet i startrutans hörn. Den läses från
   service workerns cachenamn (`caches.keys()`), så den behöver bara
   bumpas i `sw.js`.
 - **Dela** i kraschrutan (`delaResultat`): telefonens dela-meny (Web Share,

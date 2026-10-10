@@ -1,6 +1,7 @@
-// Höj VERSION (v3 -> v4 osv.) varje gång du laddar upp nya filer,
-// så hämtas och cachas den nya versionen säkert.
-const VERSION = 'v37';
+// Höj VERSION (v38-test -> v39-test osv.) varje gång du laddar upp nya
+// filer, så hämtas och cachas den nya versionen säkert. -test betyder
+// testmiljön; verktyg/slapp.py byter det mot släppnumret (v1, v2 ...).
+const VERSION = 'v38-test';
 const CACHE = 'flappy-keiws-' + VERSION;
 
 const ASSETS = [
