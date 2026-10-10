@@ -6,7 +6,8 @@ versionen på flappy.keiws.com byts bara när det här skriptet körs med
 --skarpt, och får då nästa släppnummer: v1, v2 ... Varje släpp märks med en
 tagg i git (slapp-1, slapp-2 ...) på den commit som släpptes.
 
-Skriptet tar appens filer (ASSETS i sw.js, plus sw.js) från den pushade
+Skriptet tar appens filer (ASSETS i sw.js, plus sw.js, robots.txt och
+sitemap.xml för sökmotorer) från den pushade
 koden, alltså samma som ligger på GitHub Pages, inte från arbetskopian. I
 den släppta sw.js byts VERSION mot släppnumret, så att startrutan visar t.ex.
 v1 i stället för v38-test, och installerade appar hämtar den nya versionen. Inget annat i repot
@@ -59,7 +60,7 @@ def bygg(nr):
     shutil.rmtree(WEBB, ignore_errors=True)
     sw = git('show', 'origin/main:sw.js')
     assets = re.findall(r"'\./([^']*)'", re.search(r'const ASSETS = \[(.*?)\];', sw, re.S).group(1))
-    for fil in [f for f in assets if f] + ['sw.js']:
+    for fil in [f for f in assets if f] + ['sw.js', 'robots.txt', 'sitemap.xml']:
         mal = os.path.join(WEBB, fil)
         os.makedirs(os.path.dirname(mal), exist_ok=True)
         with open(mal, 'wb') as f:

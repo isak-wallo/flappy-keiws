@@ -95,6 +95,7 @@ där.
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
 | `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
 | `verktyg/slapp.py` | Släpper en skarp version på flappy.keiws.com (`--skarpt`), eller visar vad som är släppt. Se Hosting. |
+| `robots.txt`, `sitemap.xml` | För sökmotorer (Google). Publiceras bara på flappy.keiws.com av `slapp.py`, ligger inte i `ASSETS`. Sökbeskrivning och förhandsbild står i `index.html` (`canonical` pekar på flappy.keiws.com, så testmiljön räknas inte som en egen sida). |
 | `wrangler.jsonc` | Cloudflare-inställningen för flappy.keiws.com (används av `slapp.py`). |
 | `verktyg/testa.py` | Testar spelet i headless Chrome (Playwright): egen lokal server, bot som spelar via testkroken, paus, krasch och omstart, medalj, nattbanan och att klockan styr färgerna, version i startrutan, JS-fel, datorformat. Exit 0 = OK. `--bilder MAPP` sparar skärmbilder, `--sekunder N`, `--visa`. |
 | `IDEER.md` | Idélista och ordning för vidareutveckling. Inte en del av appen (ligger inte i `ASSETS`). |
