@@ -52,6 +52,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ];
     const ROR_UTSLAG = 40;            // så långt upp och ner öppningen glider (Extrem)
     const ROR_VAG = 2 * Math.PI / 340;  // ett varv på 340 enheter (ca 2,4 s)
+    const ROR_MAX_BREDD = 56;         // bredare glidande staplar kan bli omöjliga
     const NIVA_NYCKEL = 'flappy-keiws-niva';
     let nivaVal = lasVal(NIVA_NYCKEL, NIVAER.map(n => n.id), 'normal');
     const nivan = () => NIVAER.find(n => n.id === nivaVal);
@@ -90,6 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let landadTid = null;            // s sedan figuren landade efter krasch
     let laddaOmSen = false;          // ny version finns: ladda om vid nästa start
     let poangTid = 99;               // s sedan senaste poängen (siffran studsar)
+    let testSteg = null;             // testkroken: anropas före varje fysiksteg under spel
     let version = '';                // appens version (cachens namn), visas i startrutan
 
     const fig = {
@@ -428,9 +430,12 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Stapelns bredd: samma i början, sedan en slumpad ur banans lista.
-    function stapelBreddFor(n) {
-        const lista = bana.stapelBredder;
-        if (!lista || n < bana.breddFran) return bana.stapelBredd;
+    // Glidande staplar är högst ROR_MAX_BREDD breda: bredare går ibland
+    // inte att ta sig igenom alls (det hinns inte med när hålet glider).
+    function stapelBreddFor(n, ror) {
+        let lista = bana.stapelBredder;
+        if (lista && ror) lista = lista.filter(b => b <= ROR_MAX_BREDD);
+        if (!lista || !lista.length || n < bana.breddFran) return bana.stapelBredd;
         return lista[Math.floor(Math.random() * lista.length)];
     }
 
@@ -449,7 +454,7 @@ document.addEventListener('DOMContentLoaded', () => {
             lo = Math.max(min, forra.bas - hopp);
             hi = Math.min(max, forra.bas + hopp);
         }
-        const p = { x, nr, b: stapelBreddFor(nr), oppning, farg: stapelFarg(forra),
+        const p = { x, nr, b: stapelBreddFor(nr, ror), oppning, farg: stapelFarg(forra),
                     bas: rand(lo, hi), ror, fas: rand(0, 2 * Math.PI), passerad: false };
         glid(p);
         return p;
@@ -962,6 +967,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         if (tillstand === 'spelar') {
+            if (testSteg) testSteg();        // testkroken: en bot som väljer före varje steg
             rullat += bana.fart * dt;
             fig.v = Math.min(fig.v + bana.tyngd * dt, bana.maxFall);
             fig.y += fig.v * dt;
@@ -1184,6 +1190,10 @@ document.addEventListener('DOMContentLoaded', () => {
             get fig() { return fig; },
             get staplar() { return staplar; },
             get farger() { return F; },
+            get tak() { return vyY0 + FIGUR_OVER; },   // högsta y för figurens mitt
+            traff: figurTraff(0), FIGUR_UNDER, ROR_VAG, STEG,
+            set foreSteg(f) { testSteg = f; },   // f() före varje fysiksteg under spel
+            flaxa() { if (tillstand === 'spelar') flaxa(); },
             bana, FIGUR_X, MARK_Y
         };
     }

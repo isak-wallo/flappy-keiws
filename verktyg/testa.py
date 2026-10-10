@@ -43,6 +43,7 @@ from playwright.sync_api import sync_playwright
 
 ROT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 MIN_POANG = 3          # så många staplar ska boten minst klara
+DUKTIG_POANG = 20      # ... och den duktiga boten mer än så här på Extrem
 
 # Boten: flaxar när figuren är under öppningens mitt och på väg nedåt.
 # window.botPa = false får den att sluta (för att testa krasch).
@@ -64,6 +65,63 @@ BOT = r"""
     requestAnimationFrame(loop);
   };
   loop();
+}
+"""
+
+# Den duktiga boten: räknar fram spelets fysik (samma steg som app.js) en
+# bit framåt och flaxar bara när det behövs för att det ska finnas en väg
+# förbi staplarna, även de som glider. Räknar med lite marginal (MARGINAL)
+# mot staplarna. Används för att se att det går att komma långt på Extrem.
+DUKTIG_BOT = r"""
+() => {
+  const S = window.spelet, b = S.bana, DT = S.STEG;
+  const H = 240, D = 4, MARGINAL = 0;          // steg framåt, steg mellan valen
+  const T = S.traff;                           // träffytan när mitten är y = 0
+  let minne;
+  // true om figuren klarar steg k från nu på höjden y
+  const fri = (y, k) => {
+    if (y + S.FIGUR_UNDER + MARGINAL >= S.MARK_Y) return false;
+    const a = y + T[1] - MARGINAL, u = y + T[3] + MARGINAL;
+    for (const p of S.staplar) {
+      const x = p.x - b.fart * DT * k;
+      if (x >= T[2] + MARGINAL || x + p.b <= T[0] - MARGINAL) continue;
+      const mitt = p.bas + p.ror * Math.sin(p.fas + x * S.ROR_VAG), halv = p.oppning / 2;
+      if (a < mitt - halv || u > mitt + halv) return false;
+    }
+    return true;
+  };
+  // Kör n steg från (y, v), med eller utan flax först; null vid krock
+  const kor = (y, v, k, n, flax) => {
+    if (flax) v = b.flax;
+    for (let i = 1; i <= n; i++) {
+      v = Math.min(v + b.tyngd * DT, b.maxFall);
+      y += v * DT;
+      if (y < S.tak) { y = S.tak; v = 0; }
+      if (!fri(y, k + i)) return null;
+    }
+    return [y, v];
+  };
+  // Finns det en väg H steg framåt? Ger första valet (false/true) eller null.
+  const vag = (y, v, k) => {
+    if (k >= H) return false;
+    const nyckel = k + '|' + Math.round(y * 4) + '|' + Math.round(v / 5);
+    if (minne.has(nyckel)) return minne.get(nyckel);
+    let val = null;
+    for (const flax of [false, true]) {
+      const r = kor(y, v, k, D, flax);
+      if (r && vag(r[0], r[1], k + D) !== null) { val = flax; break; }
+    }
+    minne.set(nyckel, val);
+    return val;
+  };
+  window.botFlax = 0;
+  let steg = 0;
+  // Väljer i spelets egna fysiksteg (var D:e steg), så att den räknar exakt
+  S.foreSteg = () => {
+    if (steg++ % D) return;
+    minne = new Map();
+    if (vag(S.fig.y, S.fig.v, 0) !== false) { S.flaxa(); window.botFlax++; }
+  };
 }
 """
 
@@ -335,6 +393,27 @@ def main():
         kolla(niva.evaluate("localStorage.getItem('flappy-keiws-bast')") == '7',
               'rekordet på Normal ligger kvar')
         kolla(not nivafel, 'inga JavaScript-fel med svårigheten' + (': ' + ' | '.join(nivafel) if nivafel else ''))
+
+        # --- Den duktiga boten klarar över DUKTIG_POANG på Extrem ---
+        duktig = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=1)
+        duktigfel = []
+        duktig.on('pageerror', lambda e: duktigfel.append(str(e)))
+        duktig.add_init_script("localStorage.setItem('flappy-keiws-niva', 'extrem')")
+        duktig.goto(url + '?test')
+        duktig.wait_for_function('window.spelet !== undefined', timeout=5000)
+        time.sleep(0.3)
+        duktig.evaluate(DUKTIG_BOT)
+        duktig.keyboard.press('Space')
+        try:
+            duktig.wait_for_function("spelet.tillstand !== 'spelar' || spelet.poang > %d" % DUKTIG_POANG,
+                                     timeout=120000, polling=500)
+        except Exception:
+            pass
+        kolla(duktig.evaluate('spelet.poang') > DUKTIG_POANG,
+              'den duktiga boten kommer över %d på Extrem (%d poäng, %s)' % (
+                  DUKTIG_POANG, duktig.evaluate('spelet.poang'), duktig.evaluate('spelet.tillstand')))
+        kolla(not duktigfel, 'inga JavaScript-fel för den duktiga boten' + (': ' + ' | '.join(duktigfel) if duktigfel else ''))
+        duktig.close()
 
         # --- Somnar och vaknar (?somna=1: somnar efter 1 s i stället för 25) ---
         sov = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)

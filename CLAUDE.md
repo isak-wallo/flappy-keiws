@@ -159,7 +159,11 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   dessutom upp och ner ±`ROR_UTSLAG` (40) från tionde stapeln (`ror`):
   stapeln har `bas`, `ror` och `fas`, och `glid` räknar ut `mittY` efter
   hur långt den rullat; mittens hopp mellan staplar minskas så att det
-  går att hinna. Bredden är `stapelBredd` de första
+  går att hinna. Glidande staplar är högst `ROR_MAX_BREDD` (56) breda:
+  en exakt uträkning med spelets fysik visade att 96 breda (och ibland 72)
+  glidande staplar i vissa faser inte går att passera alls. Extrem ska
+  vara extremt svårt men aldrig omöjligt; den duktiga boten i testerna
+  (`DUKTIG_BOT`) ska klara över 20 på Extrem. Bredden är `stapelBredd` de första
   `breddFran` staplarna, sedan slumpad ur `stapelBredder` (`stapelBreddFor`,
   sparas i stapelns `b`). Varje
   stapel får en slumpad grön nyans ur `farger.staplar` (`stapelFarg`, aldrig
@@ -169,7 +173,9 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   kommer tillbaka till start (`laddaOmSen`) — aldrig mitt i en runda.
 - **Testkrok:** med `?test` i adressen finns `window.spelet` (tillstånd,
   poäng, figur, staplar, bana) så att `verktyg/testa.py` kan läsa läget och
-  spela.
+  spela. `spelet.foreSteg = f` anropar f före varje fysiksteg under spel
+  och `spelet.flaxa()` flaxar direkt: så räknar den duktiga boten fram
+  fysiken exakt (samma steg som spelet) och söker en väg förbi staplarna.
 
 ## Bra att veta (erfarenheter)
 
