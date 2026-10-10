@@ -60,7 +60,9 @@ En bana är bara data i `banor.js` (fysik, hinder, färger).
 - [ ] **Ljud**: korta pixelpip som genereras i koden (Web Audio, inga
   ljudfiler) för flax, poäng och krasch. Med av/på-knapp, av från början?
 - [ ] **Figurval**, om fler figurer dyker upp.
-- [ ] **Fler val i menyn** (högst ca fyra): lätt/normal, ljud av/på.
+- [x] **Svårighet i menyn**: Barn, Lätt, Normal, Svår, Extrem (öppningen
+  glider upp och ner från tionde stapeln), eget rekord per nivå.
+- [ ] **Fler val i menyn** (högst ca fyra): ljud av/på.
 
 ## Teknik och arbetssätt
 

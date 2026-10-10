@@ -38,6 +38,24 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     let F = fargerNu();               // färgerna just nu (räknas om varje sekund)
 
+    // Svårighet i menyn: hur stor öppningen till slut blir. Alla nivåer
+    // börjar lika mycket större (som banans oppningStart - oppning) och
+    // krymper med bana.oppningSteg per stapel. På Extrem glider öppningen
+    // dessutom upp och ner, från stapel nummer `ror` (0 = första).
+    // Varje nivå har ett eget rekord.
+    const NIVAER = [
+        { id: 'barn', namn: 'Barn', oppning: 230 },
+        { id: 'latt', namn: 'Lätt', oppning: 175 },
+        { id: 'normal', namn: 'Normal', oppning: 150 },
+        { id: 'svar', namn: 'Svår', oppning: 130 },
+        { id: 'extrem', namn: 'Extrem', oppning: 115, ror: 9 }
+    ];
+    const ROR_UTSLAG = 40;            // så långt upp och ner öppningen glider (Extrem)
+    const ROR_VAG = 2 * Math.PI / 340;  // ett varv på 340 enheter (ca 2,4 s)
+    const NIVA_NYCKEL = 'flappy-keiws-niva';
+    let nivaVal = lasVal(NIVA_NYCKEL, NIVAER.map(n => n.id), 'normal');
+    const nivan = () => NIVAER.find(n => n.id === nivaVal);
+
     // --- Världen ---
     const VARLD_B = 360;             // världens bredd (enheter)
     const VARLD_H = 640;             // världens höjd
@@ -49,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const VISA_KRASCH_EFTER = 0.5;   // s efter landning innan rutan visas
     const REKORD_JUBEL = 1;          // så många gånger figuren jublar när rekordet slås
     const OMSTART_SPARR = 400;       // ms innan man kan starta om efter krasch
-    const BAST_NYCKEL = 'flappy-keiws-bast';
+    const BAST_NYCKEL = 'flappy-keiws-bast';   // Normal; övriga nivåer får -barn, -latt ...
 
     // Skala och vy: s = skärmpixlar per världsenhet, vyX0/vyY0 = världens
     // koordinat i skärmens övre vänstra hörn.
@@ -88,13 +106,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function rand(a, b) { return a + Math.random() * (b - a); }
 
+    // Rekordet för den valda nivån
+    function bastNyckel() {
+        return nivaVal === 'normal' ? BAST_NYCKEL : BAST_NYCKEL + '-' + nivaVal;
+    }
+
     function lasBast() {
-        try { return parseInt(localStorage.getItem(BAST_NYCKEL), 10) || 0; }
+        try { return parseInt(localStorage.getItem(bastNyckel()), 10) || 0; }
         catch (e) { return 0; }
     }
 
     function sparaBast(n) {
-        try { localStorage.setItem(BAST_NYCKEL, String(n)); } catch (e) {}
+        try { localStorage.setItem(bastNyckel(), String(n)); } catch (e) {}
     }
 
     // Ett sparat val ur en lista (annars `annars`), och spara ett val.
@@ -386,9 +409,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------------------------------------
 
     // Öppningens höjd för stapel nummer n (0 = första): stor i början och
-    // krymper med bana.oppningSteg per stapel ner till bana.oppning.
+    // krymper med bana.oppningSteg per stapel ner till nivåns öppning.
     function oppningFor(n) {
-        return Math.max(bana.oppning, bana.oppningStart - bana.oppningSteg * n);
+        const slut = nivan().oppning;
+        const start = slut + bana.oppningStart - bana.oppning;
+        return Math.max(slut, start - bana.oppningSteg * n);
     }
 
     // En grön nyans ur banans lista, aldrig samma som förra stapeln.
@@ -412,16 +437,28 @@ document.addEventListener('DOMContentLoaded', () => {
     function nyStapel(x, forra) {
         const nr = forra ? forra.nr + 1 : 0;
         const oppning = oppningFor(nr);
-        const halv = oppning / 2;
+        const ror = nivan().ror !== undefined && nr >= nivan().ror ? ROR_UTSLAG : 0;
+        const halv = oppning / 2 + ror;
         const min = bana.kantMarginal + halv;
         const max = MARK_Y - bana.kantMarginal - halv;
         let lo = min, hi = max;
         if (forra) {
-            lo = Math.max(min, forra.mittY - bana.maxHopp);
-            hi = Math.min(max, forra.mittY + bana.maxHopp);
+            // Glider öppningarna får mitten flytta sig mindre, så att det
+            // går att hinna även när de glider åt var sitt håll.
+            const hopp = bana.maxHopp - ror - forra.ror;
+            lo = Math.max(min, forra.bas - hopp);
+            hi = Math.min(max, forra.bas + hopp);
         }
-        return { x, nr, b: stapelBreddFor(nr), oppning, farg: stapelFarg(forra),
-                 mittY: rand(lo, hi), passerad: false };
+        const p = { x, nr, b: stapelBreddFor(nr), oppning, farg: stapelFarg(forra),
+                    bas: rand(lo, hi), ror, fas: rand(0, 2 * Math.PI), passerad: false };
+        glid(p);
+        return p;
+    }
+
+    // mittY = öppningens mitt just nu: bas, plus glidningen på Extrem
+    // (efter hur långt stapeln rullat, så den står still när spelet gör det).
+    function glid(p) {
+        p.mittY = p.bas + p.ror * Math.sin(p.fas + p.x * ROR_VAG);
     }
 
     // Lägger till staplar till höger tills det finns en precis utanför vyn.
@@ -657,6 +694,7 @@ document.addEventListener('DOMContentLoaded', () => {
             '<h1>' + pixeltext('Flappy keIWs', TEXT_STOR) + '</h1>' +
             '<p>' + pixeltext('Tryck för att flyga', TEXT) + '</p>' +
             (bast > 0 ? '<p class="liten">' + pixeltext('Bäst: ' + bast, TEXT) + '</p>' : '') +
+            (nivaVal !== 'normal' ? '<p class="liten">' + pixeltext('Svårighet: ' + nivan().namn, TEXT) + '</p>' : '') +
             (version ? '<p class="version">' + pixeltext(version, 1) + '</p>' : '');
         ruta.classList.remove('dold', 'meny');
         menyknapp.classList.remove('dold');
@@ -665,7 +703,8 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ------------------------------------------------------------------
-    // Menyn (knappen Meny på startskärmen): tid på dygnet och nollställ rekord
+    // Menyn (knappen Meny på startskärmen): svårighet, tid på dygnet och
+    // nollställ rekord (för den valda nivån)
     // ------------------------------------------------------------------
 
     let menyOppen = false;
@@ -677,6 +716,7 @@ document.addEventListener('DOMContentLoaded', () => {
             : bast > 0 ? 'Nollställ rekord: ' + bast : 'Inget rekord än';
         ruta.innerHTML =
             '<h1>' + pixeltext('Meny', TEXT_STOR) + '</h1>' +
+            '<div class="val" data-val="niva">' + pixeltext('Svårighet: ' + nivan().namn, TEXT) + '</div>' +
             '<div class="val" data-val="tid">' + pixeltext('Tid: ' + tidNamn, TEXT) + '</div>' +
             '<div class="val' + (nollstallFraga ? ' varning' : '') + '" data-val="rekord">' +
                 pixeltext(rekord, TEXT) + '</div>' +
@@ -697,7 +737,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function tryckIMeny(mal) {
         const val = mal && mal.closest && mal.closest('[data-val]');
         const vad = val ? val.dataset.val : 'klar';
-        if (vad === 'tid') {
+        if (vad === 'niva') {
+            const i = NIVAER.findIndex(n => n.id === nivaVal);
+            nivaVal = NIVAER[(i + 1) % NIVAER.length].id;
+            sparaVal(NIVA_NYCKEL, nivaVal);
+            bast = lasBast();
+            nollstallFraga = false;
+            visaMeny();
+        } else if (vad === 'tid') {
             const i = TIDER.findIndex(t => t[0] === tidVal);
             tidVal = TIDER[(i + 1) % TIDER.length][0];
             sparaVal(TID_NYCKEL, tidVal);
@@ -789,7 +836,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const MEDALJ_TECKEN = { brons: '🥉', silver: '🥈', guld: '🥇' };
     function delaResultat() {
         const medalj = medaljFor(poang);
-        const text = 'Jag fick ' + poang + ' poäng i Flappy keIWs!' +
+        const text = 'Jag fick ' + poang + ' poäng' +
+            (nivaVal !== 'normal' ? ' på ' + nivan().namn : '') + ' i Flappy keIWs!' +
             (medalj ? ' ' + MEDALJ_TECKEN[medalj] + ' ' + MEDALJ_NAMN[medalj] : '') +
             (nyttRekord ? ' Nytt rekord!' : '');
         const url = location.origin + location.pathname;
@@ -924,7 +972,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 fig.v = 0;
             }
 
-            for (const p of staplar) p.x -= bana.fart * dt;
+            for (const p of staplar) { p.x -= bana.fart * dt; glid(p); }
             while (staplar.length && staplar[0].x + staplar[0].b < vyX0) staplar.shift();
             fyllPaStaplar();
 
@@ -1129,6 +1177,7 @@ document.addEventListener('DOMContentLoaded', () => {
             get poang() { return poang; },
             get menyOppen() { return menyOppen; },
             get tidVal() { return tidVal; },
+            get nivaVal() { return nivaVal; },
             get bast() { return bast; },
             get figurLage() { const r = figurRuta(); return r ? r.lage : 'sida'; },
             get version() { return version; },

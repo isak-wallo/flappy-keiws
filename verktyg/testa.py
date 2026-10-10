@@ -15,7 +15,8 @@ finns window.spelet att läsa) och kontrollerar att:
     man kommer tillbaka till start,
   - nattbanan fungerar och klockan styr färgerna (dag, skymning, natt,
     gryning),
-  - menyn (knappen Meny) öppnas, tiden på dygnet går att välja och sparas,
+  - menyn (knappen Meny) öppnas, svårigheten går att välja (eget rekord per
+    nivå, öppningen följer nivån), tiden på dygnet går att välja och sparas,
     rekordet går att nollställa (efter en fråga),
   - figuren somnar på startskärmen, vaknar och ruskar på sig vid ett tryck
     och flyger sedan iväg av sig själv,
@@ -299,6 +300,41 @@ def main():
         kolla(meny.evaluate('spelet.tillstand') == 'spelar' and not meny.is_visible('#menyknapp'),
               'spelet startar som vanligt, menyknappen göms')
         kolla(not menyfel, 'inga JavaScript-fel i menyn' + (': ' + ' | '.join(menyfel) if menyfel else ''))
+
+        # --- Svårighet: val i menyn, eget rekord per nivå, öppningen ---
+        niva = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)
+        nivafel = []
+        niva.on('pageerror', lambda e: nivafel.append(str(e)))
+        niva.add_init_script("if (!sessionStorage.getItem('klar')) { sessionStorage.setItem('klar', 1);"
+                             " localStorage.setItem('flappy-keiws-bast', '7');"
+                             " localStorage.setItem('flappy-keiws-bast-svar', '3'); }")
+        niva.goto(url + '?test')
+        niva.wait_for_function('window.spelet !== undefined', timeout=5000)
+        time.sleep(0.3)
+        niva.click('#menyknapp')
+        kolla(niva.evaluate('spelet.nivaVal') == 'normal' and 'Svårighet: Normal' in niva.inner_text('#ruta'),
+              'svårigheten är Normal från början')
+        niva.click('[data-val=niva]')      # Normal -> Svår
+        kolla(niva.evaluate('spelet.nivaVal') == 'svar' and niva.evaluate('spelet.bast') == 3,
+              'Svår har ett eget rekord')
+        niva.click('[data-val=niva]')      # Svår -> Extrem
+        kolla(niva.evaluate('spelet.bast') == 0 and 'Inget rekord' in niva.inner_text('#ruta'),
+              'Extrem har inget rekord än')
+        bild(niva, '8b-meny-extrem.png')
+        niva.click('[data-val=klar]')
+        niva.reload()
+        niva.wait_for_function('window.spelet !== undefined', timeout=5000)
+        time.sleep(0.3)
+        kolla(niva.evaluate('spelet.nivaVal') == 'extrem' and 'Svårighet: Extrem' in niva.inner_text('#ruta'),
+              'svårigheten sparas och syns på startskärmen')
+        niva.keyboard.press('Space')
+        niva.wait_for_function('spelet.staplar.length > 1', timeout=5000)
+        oppningar = niva.evaluate('spelet.staplar.map(p => p.oppning)')
+        kolla(oppningar[:2] == [165, 160], 'Extrem börjar 50 större och krymper 5 per stapel: '
+              + str(oppningar[:2]))
+        kolla(niva.evaluate("localStorage.getItem('flappy-keiws-bast')") == '7',
+              'rekordet på Normal ligger kvar')
+        kolla(not nivafel, 'inga JavaScript-fel med svårigheten' + (': ' + ' | '.join(nivafel) if nivafel else ''))
 
         # --- Somnar och vaknar (?somna=1: somnar efter 1 s i stället för 25) ---
         sov = b.new_page(viewport={'width': 390, 'height': 844}, device_scale_factor=2)

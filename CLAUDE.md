@@ -43,10 +43,12 @@ där.
 - **Stående**, en figur (`keiws`), inga ljud.
 - **Menyn**: knappen "Meny" (`#menyknapp`, bara på startskärmen) öppnar en
   meny i textrutan (`visaMeny`, `tryckIMeny`, `menyOppen`; rutan blir
-  tryckbar med klassen `meny`). Val: **Tid** (Auto/Dag/Skymning/Natt/
+  tryckbar med klassen `meny`). Val: **Svårighet** (Barn/Lätt/Normal/
+  Svår/Extrem, `NIVAER`, sparas i `flappy-keiws-niva`, se Staplar) och **Tid** (Auto/Dag/Skymning/Natt/
   Gryning, `TIDER`, sparas i `flappy-keiws-tid`, en fast tid låtsas vara
   klockslaget i `klockslag()`; `?klocka=` i adressen går före) och
-  **Nollställ rekord** (andra trycket bekräftar). Ett tryck utanför valen,
+  **Nollställ rekord** för den valda nivån (andra trycket bekräftar). Är
+  nivån inte Normal står den på startskärmen och i dela-texten. Ett tryck utanför valen,
   "Klar", Esc/mellanslag/Enter stänger. Plats för fler val (högst ca fyra).
 - En bana, `angen`, vars **färger följer klockan** (`dygn` i banor.js):
   dag 08–18, skymning 18–21 (persika/lila, solen går ner, månen upp),
@@ -75,7 +77,8 @@ där.
   guld 50), ritade som små SVG-pixelbilder (`MEDALJ_BILD`).
 - Poäng i egna 3×5-pixelsiffror på canvasen (siffran studsar till vid
   varje poäng, `STUDS`/`poangStuds`); bästa resultatet i
-  `localStorage` (`flappy-keiws-bast`). Texterna i rutan (`#ruta`) är DOM,
+  `localStorage`, ett per nivå (`flappy-keiws-bast` för Normal,
+  `flappy-keiws-bast-barn` osv., `bastNyckel`). Texterna i rutan (`#ruta`) är DOM,
   men ritade i pixeltypsnittet (`pixeltext`, storlek `TEXT_STOR`/`TEXT`
   skärmpixlar per pixel).
 - Lugna, lite dova pixelfärger (himmel i band, moln, två lager kullar,
@@ -148,9 +151,15 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   (`stegVid`).
 - **Staplar** (raka, enfärgade — inga rör med kapsyl) fylls på till höger
   (`fyllPaStaplar`); öppningen slumpas men flyttar sig högst `maxHopp`
-  mellan två staplar. **Lätt i början:** öppningen är `oppningStart` (200)
-  vid första stapeln och krymper med `oppningSteg` (5) per stapel ner till
-  `oppning` (150) (`oppningFor`, varje stapel minns sin `oppning`). Bredden är `stapelBredd` de första
+  mellan två staplar. **Lätt i början:** öppningen börjar
+  `oppningStart - oppning` (50) större än nivåns öppning och krymper med
+  `oppningSteg` (5) per stapel ner till den (`oppningFor`, varje stapel
+  minns sin `oppning`). Nivåernas öppning: Barn 230, Lätt 175, Normal 150
+  (banans `oppning`), Svår 130, Extrem 115. På Extrem glider öppningen
+  dessutom upp och ner ±`ROR_UTSLAG` (40) från tionde stapeln (`ror`):
+  stapeln har `bas`, `ror` och `fas`, och `glid` räknar ut `mittY` efter
+  hur långt den rullat; mittens hopp mellan staplar minskas så att det
+  går att hinna. Bredden är `stapelBredd` de första
   `breddFran` staplarna, sedan slumpad ur `stapelBredder` (`stapelBreddFor`,
   sparas i stapelns `b`). Varje
   stapel får en slumpad grön nyans ur `farger.staplar` (`stapelFarg`, aldrig
@@ -187,6 +196,8 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
     pixelkuggar såg ut som blommor, slätt passade inte stilen) innan
     kugghjulet togs bort.
   - Högst ca fyra val i menyn.
+  - Svårighet som fem fasta nivåer (inte fritt plus/minus), eget rekord
+    per nivå, alla börjar lättare och krymper 5 per stapel.
 
 ## Bygga ut (förberett)
 
