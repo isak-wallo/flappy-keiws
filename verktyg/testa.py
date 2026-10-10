@@ -330,7 +330,7 @@ def main():
         niva.keyboard.press('Space')
         niva.wait_for_function('spelet.staplar.length > 1', timeout=5000)
         oppningar = niva.evaluate('spelet.staplar.map(p => p.oppning)')
-        kolla(oppningar[:2] == [165, 160], 'Extrem börjar 50 större och krymper 5 per stapel: '
+        kolla(oppningar[:2] == [155, 150], 'Extrem börjar 50 större och krymper 5 per stapel: '
               + str(oppningar[:2]))
         kolla(niva.evaluate("localStorage.getItem('flappy-keiws-bast')") == '7',
               'rekordet på Normal ligger kvar')

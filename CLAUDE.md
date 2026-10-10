@@ -154,8 +154,8 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   mellan två staplar. **Lätt i början:** öppningen börjar
   `oppningStart - oppning` (50) större än nivåns öppning och krymper med
   `oppningSteg` (5) per stapel ner till den (`oppningFor`, varje stapel
-  minns sin `oppning`). Nivåernas öppning: Barn 230, Lätt 175, Normal 150
-  (banans `oppning`), Svår 130, Extrem 115. På Extrem glider öppningen
+  minns sin `oppning`). Nivåernas öppning: Barn 250, Lätt 175, Normal 150
+  (banans `oppning`), Svår 130, Extrem 105. På Extrem glider öppningen
   dessutom upp och ner ±`ROR_UTSLAG` (40) från tionde stapeln (`ror`):
   stapeln har `bas`, `ror` och `fas`, och `glid` räknar ut `mittY` efter
   hur långt den rullat; mittens hopp mellan staplar minskas så att det

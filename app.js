@@ -44,11 +44,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // dessutom upp och ner, från stapel nummer `ror` (0 = första).
     // Varje nivå har ett eget rekord.
     const NIVAER = [
-        { id: 'barn', namn: 'Barn', oppning: 230 },
+        { id: 'barn', namn: 'Barn', oppning: 250 },
         { id: 'latt', namn: 'Lätt', oppning: 175 },
         { id: 'normal', namn: 'Normal', oppning: 150 },
         { id: 'svar', namn: 'Svår', oppning: 130 },
-        { id: 'extrem', namn: 'Extrem', oppning: 115, ror: 9 }
+        { id: 'extrem', namn: 'Extrem', oppning: 105, ror: 9 }
     ];
     const ROR_UTSLAG = 40;            // så långt upp och ner öppningen glider (Extrem)
     const ROR_VAG = 2 * Math.PI / 340;  // ett varv på 340 enheter (ca 2,4 s)
