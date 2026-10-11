@@ -49,7 +49,8 @@ där.
   klockslaget i `klockslag()`; `?klocka=` i adressen går före) och
   **Nollställ rekord** för den valda nivån (andra trycket bekräftar). Är
   nivån inte Normal står den på startskärmen och i dela-texten. Ett tryck utanför valen,
-  "Klar", Esc/mellanslag/Enter stänger. Plats för fler val (högst ca fyra).
+  "Klar", Esc/mellanslag/Enter stänger. Är menyn så hög att den skulle
+  skymma figuren glider figuren ner under den, och minst `MENY_NER` (48) (`menyMal`, `menyNer`). Plats för fler val (högst ca fyra).
 - En bana, `angen`, vars **färger följer klockan** (`dygn` i banor.js):
   dag 08–18, skymning 18–21 (persika/lila, solen går ner, månen upp),
   natt 21–06 (stjärnor, måne, blå staplar), gryning 06–08. Paletterna står i
@@ -155,8 +156,9 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   `oppningStart - oppning` (50) större än nivåns öppning och krymper med
   `oppningSteg` (5) per stapel ner till den (`oppningFor`, varje stapel
   minns sin `oppning`). Nivåernas öppning: Barn 250, Lätt 175, Normal 150
-  (banans `oppning`), Svår 130, Extrem 105. På Extrem glider öppningen
-  dessutom upp och ner ±`ROR_UTSLAG` (40) från tionde stapeln (`ror`):
+  (banans `oppning`), Svår 130, Extrem 110. Öppningen glider dessutom upp
+  och ner ±`ROR_UTSLAG` (40) från stapel 10 på Extrem, 20 på Svår och 30
+  på Normal (`ror`), aldrig på Lätt och Barn:
   stapeln har `bas`, `ror` och `fas`, och `glid` räknar ut `mittY` efter
   hur långt den rullat; mittens hopp mellan staplar minskas så att det
   går att hinna. Glidande staplar är högst `ROR_MAX_BREDD` (56) breda:

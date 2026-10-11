@@ -40,17 +40,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Svårighet i menyn: hur stor öppningen till slut blir. Alla nivåer
     // börjar lika mycket större (som banans oppningStart - oppning) och
-    // krymper med bana.oppningSteg per stapel. På Extrem glider öppningen
-    // dessutom upp och ner, från stapel nummer `ror` (0 = första).
+    // krymper med bana.oppningSteg per stapel. På Normal, Svår och Extrem
+    // glider öppningen dessutom upp och ner, från stapel nummer `ror`
+    // (0 = första: Normal från stapel 30, Svår 20, Extrem 10).
     // Varje nivå har ett eget rekord.
     const NIVAER = [
         { id: 'barn', namn: 'Barn', oppning: 250 },
         { id: 'latt', namn: 'Lätt', oppning: 175 },
-        { id: 'normal', namn: 'Normal', oppning: 150 },
-        { id: 'svar', namn: 'Svår', oppning: 130 },
-        { id: 'extrem', namn: 'Extrem', oppning: 105, ror: 9 }
+        { id: 'normal', namn: 'Normal', oppning: 150, ror: 29 },
+        { id: 'svar', namn: 'Svår', oppning: 130, ror: 19 },
+        { id: 'extrem', namn: 'Extrem', oppning: 110, ror: 9 }
     ];
-    const ROR_UTSLAG = 40;            // så långt upp och ner öppningen glider (Extrem)
+    const ROR_UTSLAG = 40;            // så långt upp och ner öppningen glider
     const ROR_VAG = 2 * Math.PI / 340;  // ett varv på 340 enheter (ca 2,4 s)
     const ROR_MAX_BREDD = 56;         // bredare glidande staplar kan bli omöjliga
     const NIVA_NYCKEL = 'flappy-keiws-niva';
@@ -460,7 +461,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return p;
     }
 
-    // mittY = öppningens mitt just nu: bas, plus glidningen på Extrem
+    // mittY = öppningens mitt just nu: bas, plus glidningen
     // (efter hur långt stapeln rullat, så den står still när spelet gör det).
     function glid(p) {
         p.mittY = p.bas + p.ror * Math.sin(p.fas + p.x * ROR_VAG);
@@ -713,6 +714,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // ------------------------------------------------------------------
 
     let menyOppen = false;
+    const MENY_NER = 48;             // minst så långt ner flyger figuren när menyn öppnas
+    let menyMal = 0;                 // så långt ner figuren flyger när menyn är öppen
+    let menyNer = 0;                 // ... och så långt ner den är just nu
     let nollstallFraga = false;      // första trycket på "Nollställ rekord"
 
     function visaMeny() {
@@ -961,8 +965,10 @@ document.addEventListener('DOMContentLoaded', () => {
             // Vaknat och ruskat färdigt: flyg iväg
             if (vaknarVid !== null && (tid - vaknarVid) * 1000 >= animMs('vaknar')) borja();
             rullat += bana.fart * dt;
-            // Svävar sakta (andas och vinkar gör den i figurRuta)
-            fig.y = START_Y + Math.sin(tid * 1.6) * 3;
+            // Svävar sakta (andas och vinkar gör den i figurRuta), och
+            // glider ner under menyn när den är öppen
+            menyNer += ((menyOppen ? menyMal : 0) - menyNer) * Math.min(1, dt * 5);
+            fig.y = START_Y + menyNer + Math.sin(tid * 1.6) * 3;
             return;
         }
 
@@ -1100,6 +1106,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const botten = (FIGUR_TOPP - 12 - vyY0) * s / dpr;   // 12 enheter luft
         // ... men aldrig så högt att rutan går utanför skärmen (låga skärmar)
         ruta.style.top = Math.round(Math.max(botten, ruta.offsetHeight + 8)) + 'px';
+        // Med menyn öppen flyger figuren ner en bit (MENY_NER), och längre om
+        // menyn annars skulle skymma den, men inte ner i marken.
+        if (menyOppen) {
+            const nedre = parseFloat(ruta.style.top) * dpr / s + vyY0;
+            menyMal = Math.max(MENY_NER, Math.min(nedre + 24 - FIGUR_TOPP,
+                                                  MARK_Y - 40 - FIGUR_UNDER - START_Y));
+        }
     }
 
     let layoutVantar = false;
@@ -1182,6 +1195,7 @@ document.addEventListener('DOMContentLoaded', () => {
             get tillstand() { return tillstand; },
             get poang() { return poang; },
             get menyOppen() { return menyOppen; },
+            get menyNer() { return menyNer; },
             get tidVal() { return tidVal; },
             get nivaVal() { return nivaVal; },
             get bast() { return bast; },

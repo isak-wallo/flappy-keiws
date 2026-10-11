@@ -331,6 +331,12 @@ def main():
         time.sleep(0.2)
         kolla(meny.evaluate('spelet.menyOppen') and meny.evaluate('spelet.tillstand') == 'start'
               and 'Tid: Auto' in meny.inner_text('#ruta'), 'menyknappen öppnar menyn (spelet startar inte)')
+        time.sleep(1.2)
+        figur_under = meny.evaluate('''() => {
+            const r = document.getElementById('ruta').getBoundingClientRect();
+            const s = spelet.fig; return [spelet.menyNer, r.bottom];
+        }''')
+        kolla(figur_under[0] > 0, 'figuren flyger ner under menyn (%.0f enheter)' % figur_under[0])
         bild(meny, '8-meny.png')
         meny.click('[data-val=tid]')       # Auto -> Dag
         meny.click('[data-val=tid]')       # Dag -> Skymning
@@ -388,7 +394,7 @@ def main():
         niva.keyboard.press('Space')
         niva.wait_for_function('spelet.staplar.length > 1', timeout=5000)
         oppningar = niva.evaluate('spelet.staplar.map(p => p.oppning)')
-        kolla(oppningar[:2] == [155, 150], 'Extrem börjar 50 större och krymper 5 per stapel: '
+        kolla(oppningar[:2] == [160, 155], 'Extrem börjar 50 större och krymper 5 per stapel: '
               + str(oppningar[:2]))
         kolla(niva.evaluate("localStorage.getItem('flappy-keiws-bast')") == '7',
               'rekordet på Normal ligger kvar')
