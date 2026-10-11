@@ -4,7 +4,9 @@ ligger inom de mittersta 72 %, så att runda masker inte klipper bort något.
 
     python verktyg/ikon.py    (kräver Pillow)
 """
+import json
 import os
+import re
 
 from PIL import Image, ImageDraw
 
@@ -15,16 +17,18 @@ HIMMEL_TOPP = (169, 211, 227)
 HIMMEL_BOTTEN = (227, 241, 234)
 STAPEL = (143, 186, 166)
 GRAS, JORD = (156, 197, 142), (226, 212, 173)
-BLA, MORK, LJUS, OGA = (86, 133, 215), (64, 101, 168), (108, 153, 228), (16, 22, 40)
 
-# keIWs från sidan, vänd åt höger (som i figurer.js), räknat från kroppens
-# hörn. Armarna (y0 52/64) lyfts när den flaxar.
-KLOSSAR = [(-44, 52, -8, 88, MORK), (24, 168, 60, 204, MORK),
-           (0, 0, 160, 160, BLA),
-           (168, 64, 204, 100, BLA), (88, 168, 124, 204, BLA),
-           (72, 25, 108, 61, OGA), (116, 25, 152, 61, OGA),
-           (72, 99, 108, 135, LJUS)]
-ARMAR = {52, 64}
+
+def figuren():
+    """keIWs från sidan, vänd åt höger (vrid[3]), och färgerna, ur
+    figur_data.js (figurens export), så att ikonen följer figuren."""
+    t = open(os.path.join(ROT, 'figur_data.js'), encoding='utf-8').read()
+    keiws = t[t.index('keiws: {'):]
+    farger = json.loads(re.search(r'farger: (\{.*?\}),', keiws).group(1))
+    rader = keiws[keiws.index('vrid: ['):].splitlines()[1:5]
+    vrid = [json.loads(rad.strip().rstrip(',')) for rad in rader]
+    farg = {namn: tuple(int(h[i:i + 2], 16) for i in (1, 3, 5)) for namn, h in farger.items()}
+    return [(x0, y0, x1, y1, farg[f], del_) for x0, y0, x1, y1, f, del_ in vrid[3]]
 
 
 def rekt(d, x0, y0, x1, y1, farg):
@@ -50,8 +54,8 @@ def rita():
     # keIWs i mitten, armarna uppe (flaxar)
     k = 1.15
     ox, oy = N / 2 - 80 * k, 250 - 102 * k
-    for x0, y0, x1, y1, farg in KLOSSAR:
-        if y0 in ARMAR and x1 - x0 == 36 and (x0 < 0 or x0 > 160):
+    for x0, y0, x1, y1, farg, del_ in figuren():
+        if del_.endswith('arm'):
             y0, y1 = y0 - 24, y1 - 24
         rekt(d, ox + x0 * k, oy + y0 * k, ox + x1 * k, oy + y1 * k, farg)
     return im

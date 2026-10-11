@@ -99,7 +99,7 @@ där.
 | `style.css` | Fullskärm, textrutan i pixelstil. |
 | `sw.js` | Service worker (cache-first + tyst bakgrundsuppdatering). Bumpa `VERSION`. |
 | `manifest.json` | PWA-manifest (`standalone`, `portrait`). |
-| `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow). |
+| `icon-192.png`, `icon-512.png` | Ikoner, ritade av `verktyg/ikon.py` (Pillow) med figuren ur `figur_data.js`. Kör den igen när figuren ändrats. Ikonen är också förhandsbilden när länken delas (`og:image`). |
 | `verktyg/slapp.py` | Släpper en skarp version på flappy.keiws.com (`--skarpt`), eller visar vad som är släppt. Se Hosting. |
 | `robots.txt`, `sitemap.xml` | För sökmotorer (Google). Publiceras bara på flappy.keiws.com av `slapp.py`, ligger inte i `ASSETS`. Sökbeskrivning och förhandsbild står i `index.html` (`canonical` pekar på flappy.keiws.com, så testmiljön räknas inte som en egen sida). |
 | `wrangler.jsonc` | Cloudflare-inställningen för flappy.keiws.com (används av `slapp.py`). |
