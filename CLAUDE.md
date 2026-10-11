@@ -71,7 +71,9 @@ där.
   service workerns cachenamn (`caches.keys()`), så den behöver bara
   bumpas i `sw.js`.
 - **Dela** i kraschrutan (`delaResultat`): telefonens dela-meny (Web Share,
-  text med poäng, medalj och länk), annars kopieras texten. Knappen är
+  text med poäng, medalj och länk), annars kopieras texten. Länken står
+  inne i texten, inte som egen `url`: många appar (Messenger, Kopiera på
+  iPhone m.fl.) tar då bara länken och slänger texten. Knappen är
   tryckbar (`.dela`), resten av rutan släpper igenom trycket; delningen
   sker vid `click` eftersom dela-menyn kräver ett helt tryck.
 - Medaljer i kraschrutan efter `bana.medaljer` (brons 10, silver 25,
@@ -173,6 +175,8 @@ rakt under vänster öga (från sidan åt höger: det inre ögat), armarna hamna
   Taket är skärmens överkant.
 - **Ny SW-version** laddas in direkt i startläget, annars först när man
   kommer tillbaka till start (`laddaOmSen`) — aldrig mitt i en runda.
+  Har man spelet öppet letar det efter en ny version (`reg.update()`) när
+  man kommer tillbaka till appen/fliken och var `UPPDATERA_VAR` (10 min).
 - **Testkrok:** med `?test` i adressen finns `window.spelet` (tillstånd,
   poäng, figur, staplar, bana) så att `verktyg/testa.py` kan läsa läget och
   spela. `spelet.foreSteg = f` anropar f före varje fysiksteg under spel

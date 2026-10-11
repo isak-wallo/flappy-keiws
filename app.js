@@ -849,11 +849,13 @@ document.addEventListener('DOMContentLoaded', () => {
             (nivaVal !== 'normal' ? ' på ' + nivan().namn : '') + ' i Flappy keIWs!' +
             (medalj ? ' ' + MEDALJ_TECKEN[medalj] + ' ' + MEDALJ_NAMN[medalj] : '') +
             (nyttRekord ? ' Nytt rekord!' : '');
-        const url = location.origin + location.pathname;
+        // Länken står i texten (inte som en egen url): många appar tar bara
+        // med url:en om den skickas för sig, och då försvinner texten.
+        const allt = text + ' ' + location.origin + location.pathname;
         if (navigator.share) {
-            navigator.share({ title: 'Flappy keIWs', text, url }).catch(() => {});
+            navigator.share({ title: 'Flappy keIWs', text: allt }).catch(() => {});
         } else if (navigator.clipboard) {
-            navigator.clipboard.writeText(text + ' ' + url).then(() => {
+            navigator.clipboard.writeText(allt).then(() => {
                 const knapp = ruta.querySelector('.dela');
                 if (knapp) knapp.innerHTML = pixeltext('Kopierat!', TEXT);
             }).catch(() => {});
@@ -1231,9 +1233,18 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // Service worker: ny version laddas in direkt om man inte spelar,
-    // annars när man kommer tillbaka till startläget.
+    // annars när man kommer tillbaka till startläget. Webbläsaren letar
+    // själv efter en ny version bara när sidan öppnas, så den som har
+    // spelet öppet (eller installerat, i bakgrunden) letar också när man
+    // kommer tillbaka till det och var UPPDATERA_VAR medan det är öppet.
+    const UPPDATERA_VAR = 10 * 60 * 1000;
     if ('serviceWorker' in navigator) {
         navigator.serviceWorker.register('sw.js').then(reg => {
+            const leta = () => reg.update().catch(() => {});
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'visible') leta();
+            });
+            setInterval(leta, UPPDATERA_VAR);
             reg.addEventListener('updatefound', () => {
                 const nw = reg.installing;
                 if (!nw) return;

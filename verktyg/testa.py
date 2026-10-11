@@ -267,6 +267,8 @@ def main():
             kolla(delat is not None and str(sida.evaluate('spelet.poang')) in delat['text']
                   and sida.evaluate('spelet.tillstand') == 'krasch',
                   'dela-knappen delar resultatet, spelet startar inte om')
+            kolla(delat is not None and 'url' not in delat and delat['text'].endswith(url),
+                  'länken står i dela-texten (ingen egen url, som många appar slänger texten för)')
             if poang >= 10:
                 kolla(sida.is_visible('#ruta svg.medalj')
                       and any(m in text for m in ('Brons', 'Silver', 'Guld')),
